@@ -56,13 +56,14 @@ app.use('/api/auth', function (req, res,next) {
 		let sql = 'SELECT * FROM ftduser WHERE username=$1 and password=sha512($2)';
         	pool.query(sql, [username, password], (err, pgRes) => {
   			if (err){
-                		res.status(403).json({ error: 'Not authorized'});
+                		res.status(401).json({ error: 'Not authorized'});
 			} else if(pgRes.rowCount == 1){
+				res.game_diff = pgRes.rows[0]['gamedifficulity'];
 				res.cur_user = username;
 				res.psw = password;
 				next(); 
 			} else {
-                		res.status(403).json({ error: 'Not authorized'});
+                		res.status(402).json({ error: 'Your username and password does not match'});
         	}
 		});
 	} catch(err) {
@@ -72,7 +73,7 @@ app.use('/api/auth', function (req, res,next) {
 
 app.use('/api/authR', function (req, res,next) {
 	if (!req.headers.authorization) {
-		return res.status(403).json({ error: 'No credentials sent!' });
+		return res.status(405).json({ error: 'No credentials sent!' });
   	}
 	try {
 		var credentialsString = Buffer.from(req.headers.authorization.split(" ")[1], 'base64').toString();
@@ -86,8 +87,10 @@ app.use('/api/authR', function (req, res,next) {
 		if (password != repeatpsw){
 			console.log("Your password are not same");
 			res.status(402).json({error: "Your password are not same"});
+			console.log("cao");
 			return;
 		}
+		console.log("ye");
 		let sql = "INSERT INTO ftduser (username, password, gamedifficulity) VALUES ($1, sha512($2), $3)";
         	pool.query(sql, [username, password, gamedifficulity], (err, pgRes) => {
   			if (err){
@@ -100,6 +103,47 @@ app.use('/api/authR', function (req, res,next) {
 	} catch(err) {
                	res.status(404).json({ error: 'Not authorized'});
 	}
+});
+
+
+app.use('/api/authU', function (req, res,next) {
+	if (!req.headers.authorization) {
+		return res.status(405).json({ error: 'No credentials sent!' });
+  	}
+	try {
+		var credentialsString = Buffer.from(req.headers.authorization.split(" ")[1], 'base64').toString();
+		var lst = credentialsString.split(":");
+		console.log(lst);
+		var [username,password,repeatpsw, gamedifficulity] = [lst[0], lst[1], lst[2], lst[3]]
+		if (gamedifficulity == "" || password == "" || repeatpsw == ""){
+			res.status(401).json({error: "All the update fields can not be empty"});
+			console.log("All the update fields can not be empty");
+			return;
+		}
+		if (password != repeatpsw){
+			console.log("Your password are not same");
+			res.status(402).json({error: "Your password are not same"});
+			return;
+		}
+		let sql = "UPDATE ftduser SET password = sha512($1), gamedifficulity= $2 WHERE username = $3;";
+        	pool.query(sql, [password, gamedifficulity, username], (err, pgRes) => {
+  			if (err){
+				console.log(err.message);
+                res.status(403).json({ error: 'error'});
+			} else {
+				console.log("no error");
+				next();
+        	}
+		});
+	} catch(err) {
+               	res.status(404).json({ error: 'Not authorized'});
+	}
+});
+
+
+app.put('/api/authU/update', function (req, res) {
+	res.status(200); 
+	res.json({"message":"profile successfully update"}); 
 });
 
 app.post('/api/authR/register', function (req, res) {
@@ -145,7 +189,7 @@ app.post('/api/view/profile', function (req, res) {
 // All routes below /api/auth require credentials 
 app.post('/api/auth/login', function (req, res) {
 	res.status(200); 
-	res.json({"message":"authentication success", "user": res.cur_user, "password": res.psw}); 
+	res.json({"message":"authentication success", "user": res.cur_user, "password": res.psw, "game_diff": res.game_diff}); 
 });
 
 app.post('/api/auth/test', function (req, res) {

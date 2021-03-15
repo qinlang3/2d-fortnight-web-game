@@ -21,27 +21,41 @@
 				<input type="password" id="password" placeholder="Password" />
 				<input type="submit" id="loginSubmit" value="Login">
 				<input type="submit" id="registerSubmit" value="Register">
+				<div id='login_err'></div>
 			</div>
 		</div>
 		<div id="ui_register">
 			<div>
+				<form id="myform" action="javascript:register();">
 			    <label for="username"><b>Username</b></label>
-    			<input type="text" placeholder="Enter Username" name="username" id="regname" required>
+    			<input type="text" placeholder="Enter Username" name="username" id="regname" value="" required>
+				<span id="usrname_err"></span>
 				<br><br>
     			<label for="psw"><b>Password</b></label>
-    			<input type="password" placeholder="Enter Password" name="psw" id="psw" required>
+				<input type="password" name="psw" id="psw" minlength="6" pattern="(?=.*\d)(?=.*[A-Z]).{6,}"
+				title="Password should contain at least one capital letter and at least one number and the minimum length is 6" required/>
 				<br><br>
     			<label for="psw-repeat"><b>Repeat Password</b></label>
-    			<input type="password" placeholder="Repeat Password" name="psw-repeat" id="pswrepeat" required>
+				<input type="password" name="psw-repeat" id="psw-repeat" value="" minlength="6" pattern="(?=.*\d)(?=.*[A-Z]).{6,}"
+				title="Password should contain at least one capital letter and at least one number and the minimum length is 6" required/>
+				<span id="psw_err"></span>
 				<br><br>
-
-				<input type="radio" id="skill1" name="skill_reg" value="easy">
-				<label for="skill1">Easy</label>
+				<label for="birthday">Birthday:</label>
+				<input type="date" id="birthday" name="birthday" required>
+				<br><br>
+				<input type="radio" id="skill1" name="skill_reg" value="easy" required>
+				<label for="skill1">Beginner</label>
 				<input type="radio" id="skill2" name="skill_reg" value="intedermediate">
 				<label for="skill2">Intedermediate</label>
 				<input type="radio" id="skill3" name="skill_reg" value="advanced">
 				<label for="skill3">Advanced</label><br><br>
+				<span id="empty_err"></span>
 				<input type="submit" id="register" value="Register">
+
+			</form>
+				
+				
+			
 			</div>
 		</div>
 		<div id="ui_navigation">
@@ -51,7 +65,9 @@
 			<input type="submit" id="profile" value="profile">
 		</div>
 		<div id="ui_profile">
-			<p id='cur_user'></p>
+			<br>
+			<span>Your Username: </span><span id='cur_user'></span>
+			<br><br>
 			<label for="psw_profile"><b>Password</b></label>
 			<input type="password" placeholder="Enter Password" name="psw11" id="psw_profile" value="" required>
 			<br><br>

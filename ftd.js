@@ -59,10 +59,11 @@ app.use('/api/auth', function (req, res,next) {
                 		res.status(403).json({ error: 'Not authorized'});
 			} else if(pgRes.rowCount == 1){
 				res.cur_user = username;
+				res.psw = password;
 				next(); 
 			} else {
                 		res.status(403).json({ error: 'Not authorized'});
-        		}
+        	}
 		});
 	} catch(err) {
                	res.status(403).json({ error: 'Not authorized'});
@@ -76,7 +77,7 @@ app.use('/api/authR', function (req, res,next) {
 	try {
 		var credentialsString = Buffer.from(req.headers.authorization.split(" ")[1], 'base64').toString();
 		var lst = credentialsString.split(":");
-		var [username,password,repeatpsw] = [lst[0], lst[1], lst[2]]
+		var [username,password,repeatpsw, gamedifficulity] = [lst[0], lst[1], lst[2], lst[3]]
 		if (username == "" || password == "" || repeatpsw == ""){
 			res.status(401).json({error: "All the registration fields can not be empty"});
 			console.log("All the registration fields can not be empty");
@@ -87,8 +88,8 @@ app.use('/api/authR', function (req, res,next) {
 			res.status(402).json({error: "Your password are not same"});
 			return;
 		}
-		let sql = "INSERT INTO ftduser (username, password) VALUES ($1, sha512($2))";
-        	pool.query(sql, [username, password], (err, pgRes) => {
+		let sql = "INSERT INTO ftduser (username, password, gamedifficulity) VALUES ($1, sha512($2), $3)";
+        	pool.query(sql, [username, password, gamedifficulity], (err, pgRes) => {
   			if (err){
 				console.log(err.message);
                 res.status(403).json({ error: 'The username is already been used'});
@@ -123,15 +124,28 @@ app.get('/api/view/instruction', function (req, res) {
 });
 
 
-app.get('/api/view/profile', function (req, res) {
-	res.status(200); 
-	res.json({"message":"go to profile page"}); 
+app.post('/api/view/profile', function (req, res) {
+	// console.log(req.data);
+    console.log(JSON.stringify(req.body));  
+	let sql = 'SELECT * FROM ftduser WHERE username=$1';
+	pool.query(sql, [req.body.user], (err, pgRes) => {
+	  if (err){
+				res.status(403).json({ error: 'Not authorized'});
+	} else if(pgRes.rowCount == 1){
+		console.log(pgRes.rows[0]);
+		console.log(pgRes.rows[0]["username"]);
+		console.log(pgRes.rows[0]["gamedifficulity"]);
+		res.status(200).json({ "good": 'nb'});
+	} else {
+			res.status(403).json({ error: 'Not authorized'});
+	}
+	});
 });
 
 // All routes below /api/auth require credentials 
 app.post('/api/auth/login', function (req, res) {
 	res.status(200); 
-	res.json({"message":"authentication success", "user": res.cur_user}); 
+	res.json({"message":"authentication success", "user": res.cur_user, "password": res.psw}); 
 });
 
 app.post('/api/auth/test', function (req, res) {

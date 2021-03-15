@@ -1,0 +1,24 @@
+{
+  "name": "ftd_starter",
+  "version": "1.0.0",
+  "description": "",
+  "main": "authorization.js",
+  "dependencies": {
+    "express": "^4.17.1",
+    "pg": "^8.5.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SkrPaoWang/2d-fortnight-web-game.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SkrPaoWang/2d-fortnight-web-game/issues"
+  },
+  "homepage": "https://github.com/SkrPaoWang/2d-fortnight-web-game#readme"
+}

@@ -3,6 +3,7 @@ var view = null;
 var interval=null;
 var credentials={ "username": "", "password":"" };
 var cur_user = null;
+var cur_user_psw = null;
 function setupGame(){
 	stage=new Stage(document.getElementById('stage'));
 
@@ -105,9 +106,10 @@ function login(){
         	$("#ui_play").show();
         	$("#ui_navigation").show();
                 cur_user = data['user'];
-                console.log(cur_user);
+                cur_user_psw = data['password'];
                 $("#cur_user").html("Current User: " + cur_user);
-
+                $("#psw_profile").val(cur_user_psw);
+                $("#pswrepeat_profile").val(cur_user_psw);
 		setupGame();
 		startGame();
 
@@ -140,13 +142,14 @@ function register(){
 	credentials =  { 
 		"username": $("#regname").val(), 
 		"psw": $("#psw").val(),
-                "pswrepeat": $("#pswrepeat").val()
+                "pswrepeat": $("#pswrepeat").val(),
+                "gamedifficulity": $('input:radio[name=skill_reg]:checked').val()
 	};
         $.ajax({
                 method: "POST",
                 url: '/api/authR/register',
                 data: JSON.stringify({}),
-		headers: { "Authorization": "Basic " + btoa(credentials.username + ":" + credentials.psw + ":" + credentials.pswrepeat) },
+		headers: { "Authorization": "Basic " + btoa(credentials.username + ":" + credentials.psw + ":" + credentials.pswrepeat + ":" + credentials.gamedifficulity) },
                 processData:false,
                 contentType: "application/json; charset=utf-8",
                 dataType:"json"
@@ -209,9 +212,9 @@ function instruction(){
 
 function profile(){
         $.ajax({
-                method: "GET",
+                method: "POST",
                 url: '/api/view/profile',
-                data: JSON.stringify({}),
+                data: JSON.stringify({"user": cur_user}),
                 processData:false,
                 contentType: "application/json; charset=utf-8",
                 dataType:"json"

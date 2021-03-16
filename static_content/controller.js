@@ -9,7 +9,7 @@ function setupGame(){
 	stage=new Stage(document.getElementById('stage'));
 
 	// https://javascript.info/keyboard-events
-	document.addEventListener('keydown', moveByKey);
+	document.addEventListener('keydown', pressKey);
         document.addEventListener('keyup', releaseKey);
         document.getElementById('stage').addEventListener('mousemove', moveMouse);
         document.getElementById('stage').addEventListener('mousedown', mouseClick);
@@ -45,9 +45,12 @@ function restartGame(){
         $("#ui_instruction").hide();
         $("#ui_profile").hide();
 }
-function moveByKey(event){
+function pressKey(event){
 	var key = event.key;
         if(stage.player.health>0){
+                if (key=='f') {
+                        stage.player.pickup();
+                }
                 if (key=='a') {
                         stage.player.setVelocityX(-4);
                 }

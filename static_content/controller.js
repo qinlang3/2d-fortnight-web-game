@@ -94,14 +94,19 @@ function mouseClick() {
 
 
 function login(){
+        $("#login_err").html("")
 	credentials =  { 
 		"username": $("#username").val(), 
 		"password": $("#password").val() 
 	};
+        if ( credentials["username"] == "" || credentials["password"] == ""){
+                $("#login_err").html("Username and password can not be empty");
+                return;
+        }
         $.ajax({
                 method: "POST",
                 url: "/api/auth/login",
-                data: JSON.stringify({}),
+                data: JSON.stringify({"username": credentials.username, "password": credentials.password}),
 		headers: { "Authorization": "Basic " + btoa(credentials.username + ":" + credentials.password) },
                 processData:false,
                 contentType: "application/json; charset=utf-8",
@@ -133,56 +138,64 @@ function login(){
 
 
 function update_profile(){
+        $("#update_msg").html("");
+        $("#pswerr_pro").html("");
+        $("#emptyerr_pro").html("");
 	credentials =  { 
 		"username": $("#cur_user").html(), 
 		"password": $("#psw_profile").val(),
                 "repeatpsw": $('#pswrepeat_profile').val(),
                 "gamedifficulity": $('input:radio[name=skill_pro]:checked').val() 
 	};
-        console.log(credentials);
-        // console.log(btoa(credentials.username + ":" + credentials.password + ":" + credentials.repeat-psw + ":" + credentials.gamedifficulity));
+        if ( credentials["username"] == "" || credentials["password"] == "" || credentials["repeatpsw"]=="" || credentials["gamedifficulity"]==""){
+                $("#emptyerr_pro").html("All registration field can not be empty");
+                return;
+        }
+        if (credentials["pswrepeat"] != credentials["psw"]){
+                $("#pswerr_pro").html("Your two password are not the same");
+                return;
+        }
         $.ajax({
                 method: "PUT",
                 url: "/api/authU/update",
                 data: JSON.stringify({}),
-		// headers: { "Authorization": "Basic " + btoa(credentials.username + ":" + credentials.password + ":" + credentials.repeat-psw + ":" + credentials.gamedifficulity) },
                 headers: { "Authorization": "Basic " + btoa(credentials.username + ":" + credentials.password + ":" + credentials.repeatpsw + ":" + credentials.gamedifficulity) },
                 processData:false,
                 contentType: "application/json; charset=utf-8",
                 dataType:"json"
         }).done(function(data, text_status, jqXHR){
                 console.log(jqXHR.status+" "+text_status+JSON.stringify(data));
-                console.log(JSON.stringify(data)); 
-                console.log("1");
-        	// $("#ui_login").hide();
-        	// $("#ui_play").show();
-        	// $("#ui_navigation").show();
-                // cur_user = data['user'];
-                // cur_user_psw = data['password'];
-                // game_difficulity = data['game_diff'];
-                // $('input[name="' + "skill_pro" + '"][value="' + game_difficulity + '"]').attr('checked',true);
-                // $("#cur_user").html("Current User: " + cur_user);
-                // $("#psw_profile").val(cur_user_psw);
-                // $("#pswrepeat_profile").val(cur_user_psw);
-		// setupGame();
-		// startGame();
+                $("#update_msg").html("User Profile update successfully!"); 
+
+
         }).fail(function(err){
-                // $("#login_err").html("");
-                // if (err.status == "402"){
-                //         console.log("Your username and password does not match");
-                //         $("#login_err").html("Your username and password does not match");
-                // }
-                // console.log("fail "+err.status+" "+JSON.stringify(err.responseJSON));
+                if (err.status == "401"){
+                        $("#emptyerr_pro").html("All the registration fields can not be empty");
+                }else if (err.status == "402"){
+                        $("#pswerr_pro").html("Your two password are not the same");
+                }
+
         });
 }
 
 function register(){
+        $("#empty_err").html("");
+        $("#psw_err").html("");
+        $("#usrname_err").html("");
 	credentials =  { 
 		"username": $("#regname").val(), 
 		"psw": $("#psw").val(),
                 "pswrepeat": $("#psw-repeat").val(),
                 "gamedifficulity": $('input:radio[name=skill_reg]:checked').val()
 	};
+        if ( credentials["username"] == "" || credentials["psw"] == "" || credentials["pswrepeat"]=="" || credentials["gamedifficulity"]==""){
+                $("#empty_err").html("All registration field can not be empty");
+                return;
+        }
+        if (credentials["pswrepeat"] != credentials["psw"]){
+                $("#psw_err").html("Your two password are not the same");
+                return;
+        }
         $.ajax({
                 method: "POST",
                 url: "/api/authR/register",
@@ -196,9 +209,6 @@ function register(){
         	$("#ui_login").show();
         	$("#ui_register").hide();
         }).fail(function(err){
-                $("#empty_err").html("");
-                $("#psw_err").html("");
-                $("#usrname_err").html("");
                 if (err.status == "401"){
                         $("#empty_err").html("All the registration fields can not be empty");
                 }else if (err.status == "402"){
@@ -280,7 +290,7 @@ function instruction(){
 
 function profile(){
         $.ajax({
-                method: "POST",
+                method: "GET",
                 url: '/api/view/profile',
                 data: JSON.stringify({"user": cur_user}),
                 processData:false,
@@ -317,16 +327,35 @@ function test(){
         });
 }
 
+
+function delete_account(){
+        $.ajax({
+                method: "DELETE",
+                url: "/api/authD/delete",
+                data: {},
+		headers: { "Authorization": "Basic " + btoa(credentials.username) },
+                dataType:"json"
+        }).done(function(data, text_status, jqXHR){
+                console.log(jqXHR.status+" "+text_status+JSON.stringify(data));
+                $("#ui_navigation").hide();
+                $("#ui_profile").hide();
+                $("#ui_login").show();
+        }).fail(function(err){
+                console.log("fail "+err.status+" "+JSON.stringify(err.responseJSON));
+        });
+}
+
 $(function(){
         // Setup all events here and display the appropriate UI
         $("#loginSubmit").on('click',function(){ login(); });
+        $("#delete").on('click',function(){ delete_account(); });
         $("#registerSubmit").on('click',function(){ Nav_register(); });
         // $("#register").on('click',function(){ register(); });
         $("#logout").on('click',function(){ logout(); });
         $("#instruction").on('click',function(){ instruction(); });
         $("#restart").on('click',function(){ restartGame(); });
         $("#profile").on('click',function(){ profile(); });
-        $("#update").on('click',function(){ update_profile(); });
+        // $("#update").on('click',function(){ update_profile(); });
         $(".resume").on('click',function(){ resumeGame(); });
         $("#ui_login").show();
         $("#ui_navigation").hide();
@@ -334,5 +363,6 @@ $(function(){
         $("#ui_register").hide();
         $("#ui_instruction").hide();
         $("#ui_profile").hide();
+
 });
 

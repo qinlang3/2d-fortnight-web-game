@@ -26,13 +26,6 @@ app.use(bodyParser.json());
 
 app.use('/',express.static('static_content')); 
 
-
-// Non authenticated route. Can visit this without credentials
-app.post('/api/test', function (req, res) {
-	res.status(200); 
-	res.json({"message":"got here"}); 
-});
-
 /** 
  * This is middleware to restrict access to subroutes of /api/auth/ 
  * To get past this middleware, all requests should be sent with appropriate
@@ -141,14 +134,50 @@ app.use('/api/authU', function (req, res,next) {
 });
 
 
+app.use('/api/authD', function (req, res,next) {
+	if (!req.headers.authorization) {
+		return res.status(405).json({ error: 'No credentials sent!' });
+  	}
+	try {
+		var credentialsString = Buffer.from(req.headers.authorization.split(" ")[1], 'base64').toString();
+		var lst = credentialsString.split(":");
+		var username = lst[0];
+		console.log(username);
+		let sql = "DELETE FROM ftduser WHERE username=$1;";
+        	pool.query(sql, [username], (err, pgRes) => {
+  			if (err){
+				console.log(err.message);
+                res.status(403).json({ error: 'error'});
+			} else {
+				console.log("no error");
+				next();
+        	}
+		});
+	} catch(err) {
+               	res.status(404).json({ error: 'Not authorized'});
+	}
+});
+
+
+app.delete('/api/authD/delete', function (req, res) {
+	res.status(200); 
+	res.json({"message":"Delete user successfully"}); 
+});
+
 app.put('/api/authU/update', function (req, res) {
 	res.status(200); 
 	res.json({"message":"profile successfully update"}); 
 });
 
+
 app.post('/api/authR/register', function (req, res) {
 	res.status(200); 
 	res.json({"message":"register success"}); 
+});
+
+app.post('/api/auth/login', function (req, res) {
+	res.status(200); 
+	res.json({"message":"authentication success", "user": res.cur_user, "password": res.psw, "game_diff": res.game_diff}); 
 });
 
 // go to register page
@@ -157,10 +186,12 @@ app.get('/api/view/register', function (req, res) {
 	res.json({"message":"go to register page"}); 
 });
 
+
 app.get('/api/view/logout', function (req, res) {
 	res.status(200); 
 	res.json({"message":"go to login page"}); 
 });
+
 
 app.get('/api/view/instruction', function (req, res) {
 	res.status(200); 
@@ -168,34 +199,11 @@ app.get('/api/view/instruction', function (req, res) {
 });
 
 
-app.post('/api/view/profile', function (req, res) {
-	// console.log(req.data);
-    console.log(JSON.stringify(req.body));  
-	let sql = 'SELECT * FROM ftduser WHERE username=$1';
-	pool.query(sql, [req.body.user], (err, pgRes) => {
-	  if (err){
-				res.status(403).json({ error: 'Not authorized'});
-	} else if(pgRes.rowCount == 1){
-		console.log(pgRes.rows[0]);
-		console.log(pgRes.rows[0]["username"]);
-		console.log(pgRes.rows[0]["gamedifficulity"]);
-		res.status(200).json({ "good": 'nb'});
-	} else {
-			res.status(403).json({ error: 'Not authorized'});
-	}
-	});
+app.get('/api/view/profile', function (req, res) {
+	res.status(200); 
+	res.json({"message":"go to profile page"}); 
 });
 
-// All routes below /api/auth require credentials 
-app.post('/api/auth/login', function (req, res) {
-	res.status(200); 
-	res.json({"message":"authentication success", "user": res.cur_user, "password": res.psw, "game_diff": res.game_diff}); 
-});
-
-app.post('/api/auth/test', function (req, res) {
-	res.status(200); 
-	res.json({"message":"got to /api/auth/test"}); 
-});
 
 app.listen(port, function () {
   	console.log('Example app listening on port '+port);

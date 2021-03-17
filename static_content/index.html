@@ -65,16 +65,20 @@
 			<input type="submit" id="profile" value="profile">
 		</div>
 		<div id="ui_profile">
+		<form id="myform2" action="javascript:update_profile();">
 			<br>
 			<span>Your Username: </span><span id='cur_user'></span>
 			<br><br>
 			<label for="psw_profile"><b>Password</b></label>
-			<input type="password" placeholder="Enter Password" name="psw11" id="psw_profile" value="" required>
+			<input type="password" placeholder="Enter Password" name="psw11" id="psw_profile" minlength="6" pattern="(?=.*\d)(?=.*[A-Z]).{6,}" value="" 
+			title="Password should contain at least one capital letter and at least one number and the minimum length is 6" required>
 			<br><br>
 			<label for="pswrepeat_profile"><b>Repeat Password</b></label>
-			<input type="password" placeholder="Repeat Password" name="psw-repeat" id="pswrepeat_profile" value="" required>
+			<input type="password" placeholder="Repeat Password" name="psw-repeat" id="pswrepeat_profile" minlength="6" pattern="(?=.*\d)(?=.*[A-Z]).{6,}" value="" 
+			title="Password should contain at least one capital letter and at least one number and the minimum length is 6" required>
+			<span id="pswerr_pro"></span>
 			<br><br>
-			<input type="radio" id="skill1" name="skill_pro" value="easy">
+			<input type="radio" id="skill1" name="skill_pro" value="easy" required>
 			<label for="skill1">Easy</label>
 			<input type="radio" id="skill2" name="skill_pro" value="intedermediate">
 			<label for="skill2">Intedermediate</label>
@@ -82,6 +86,11 @@
 			<label for="skill3">Advanced</label><br><br>
 			<input type="submit" id="update" value="update">
 			<input type="submit" class="resume" value="resume game">
+			<br>
+			<span id="update_msg"></span>
+			<span id="emptyerr_pro"></span>
+		</form>
+		<input type="submit" id="delete" value="DELETE ACCOUNT">
 		</div>
 		<br>
 		<div id="ui_play">

@@ -48,6 +48,9 @@ function restartGame(){
 function pressKey(event){
 	var key = event.key;
         if(stage.player.health>0){
+                if (key=='r') {
+                        stage.player.switchWeapon();
+                }
                 if (key=='f') {
                         stage.player.pickup();
                 }

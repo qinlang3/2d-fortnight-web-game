@@ -69,10 +69,6 @@ class Stage {
 				
 			}
 		}
-		
-
-		// the number of total pickupable items
-		this.itemNum=0;
 	}
 
 	checkOverlap(x,y,width,height){
@@ -150,44 +146,6 @@ class Stage {
 	// Take one step in the animation of the game.  Do this by asking each of the actors to take a single step. 
 	// NOTE: Careful if an actor died, this may break!
 	step(){
-		
-		/*
-		if(this.oppoNum<5){
-			var gen=randint(200);
-			if(gen==100){
-				var x=Math.floor((Math.random()*this.width)); 
-				var y=Math.floor((Math.random()*this.height)); 
-				if(this.getActor(x,y)===null){
-					var velocity = new Pair(rand(3), rand(3));
-					var red=111, green=221, blue=91;
-					var radius = 15;
-					var alpha = 1;
-					var colour= 'rgba('+red+','+green+','+blue+','+alpha+')';
-					var position = new Pair(x,y);
-					var type = 'enemy';
-					var b = new Ball(this, position, velocity, colour, radius, type);
-					this.addActor(b);
-				}
-			}
-		}
-		*/
-		/*
-		if(this.pickup==0){
-			var gen=randint(500);
-			if(gen==100){
-				var x=Math.floor((Math.random()*this.width)); 
-				var y=Math.floor((Math.random()*this.height)); 
-				if(this.getActor(x,y)===null){
-					var velocity = new Pair(rand(3), rand(3));
-					var radius = 15;
-					var colour= 'rgba(0,0,1,1)';
-					var position = new Pair(x,y);
-					var type = 'ammo';
-					var b = new Ball(this, position, velocity, colour, radius, type);
-					this.addActor(b);
-				}
-			}
-		}*/
 		for(var i=0;i<this.actors.length;i++){
 			this.actors[i].step();
 		}
@@ -208,16 +166,16 @@ class Stage {
 	displayInfo(context){
 		context.fillStyle = 'rgba(0,0,0,1)';
 		context.font = '23px serif';
-		context.fillText('Health:', 600, 30);
-		context.fillText(this.player.health, 700, 30);
-		context.fillText('Ammo:', 600, 60);
-		context.fillText(this.player.ammo, 700, 60);
-		context.fillText('Points:', 600, 90);
-		context.fillText(this.player.points, 700, 90);
-		context.fillText('x:', 600, 120);
-		context.fillText(Math.round(this.player.position.x), 700, 120);
-		context.fillText('y:', 600, 150);
-		context.fillText(Math.round(this.player.position.y), 700, 150);
+		context.fillText('Health:', 800, 30);
+		context.fillText(this.player.health, 900, 30);
+		context.fillText('Ammo:', 800, 60);
+		context.fillText(this.player.weapons[this.player.weaponIdx].ammo, 900, 60);
+		context.fillText('Points:', 800, 90);
+		context.fillText(this.player.points, 900, 90);
+		context.fillText('x:', 800, 120);
+		context.fillText(Math.round(this.player.position.x), 900, 120);
+		context.fillText('y:', 800, 150);
+		context.fillText(Math.round(this.player.position.y), 900, 150);
 		if(this.player.health==0){
 			context.font = '30px serif';
 			context.fillText('You Died!', 350, 400);
@@ -266,37 +224,9 @@ class Ball {
 		this.velocity.y=(position.y-this.position.y);
 		this.velocity.normalize();
 	}
-
 	toString(){
 		return this.position.toString() + " " + this.velocity.toString();
 	}
-	
-	step(){
-	
-		
-				
-		/*
-		if(this.type=='ammo'){
-			for(var i=0;i<this.stage.actors.length;i++){
-				if(this.stage.actors[i].type=='player'){
-				
-					distX=this.stage.actors[i].position.x-(this.position.x+15);
-					distY=this.stage.actors[i].position.y-(this.position.y-15);
-					if(Math.sqrt(distX*distX+distY*distY)<=this.radius+this.stage.actors[i].radius){
-						this.stage.removeActor(this);
-						this.stage.pickup--;
-						this.stage.player.ammo+=10;
-					}
-				}
-			}
-
-		}
-		*/
-		//if(this.type=='enemy'){
-			//this.headTo(this.stage.player.position);
-		//}		
-	}
-
 	setVelocityX(value){
 		this.velocity.x=value;
 	}
@@ -337,8 +267,7 @@ class Obstacle extends Ball {
 			this.deathCD++;
 			if(this.deathCD==20){ // dying period ends, remove this actor
 				var gen=randint(100);
-				console.log(gen);
-				if(gen<=70){	// 70% probability to drop some item
+				if(gen<=90){	// 70% probability to drop some item
 					var position=new Pair(Math.round(this.position.x+this.width/2), Math.round(this.position.y+this.height/2));
 					this.stage.addActor(new Item(this.stage, position, new Pair(0, 0), 'rgba(0,0,0,1)',15));
 				}
@@ -356,7 +285,6 @@ class Obstacle extends Ball {
 		context.lineWidth=5;
    		context.strokeRect(x, y, this.width,this.height);
 	}
-
 }
 class Item extends Ball {
 	constructor(stage, position, velocity, colour, radius){
@@ -364,7 +292,6 @@ class Item extends Ball {
 		this.type=null;
 		this.beingPicked=false;
 		var gen=randint(100);
-		console.log(gen);
 		if(0<=gen&&gen<30) this.type='first-aid';  // 30% probability to span a first-aid
 		if(30<=gen&&gen<60) {this.type='ammo'; this.radius=20;}		// 30% probability to span a ammo supply
 		if(60<=gen&&gen<85) {this.type='pistol'; this.radius=25;}	// 25% probaility to span a pistol
@@ -552,6 +479,7 @@ class Enemy extends Ball {
 	step(){
 		if(this.health<0){
 			this.health=0;
+			this.beingHit=false;
 		}
 		if(this.health>0){
 			this.position.x+=this.velocity.x;
@@ -669,18 +597,134 @@ class Enemy extends Ball {
 			}
 	}
 }
+
+class Weapon {
+	constructor(player, type){
+		this.player=player;
+		this.type=type;
+		this.ammo=0;
+		this.fireCD=50;
+		if(this.type=='pistol') {this.ammo+=30;this.fireCD=40;}
+		if(this.type=='rifle') {this.ammo+=60;this.fireCD=40;}
+		if(this.type=='rpg') {this.ammo+=5;this.fireCD=40;}
+	}
+	addAmmo(){
+		if(this.type=='fist') return;
+		if(this.type=='pistol') this.ammo+=15;
+		if(this.type=='rifle') this.ammo+=30;
+		if(this.type=='rpg') this.ammo+=5;
+	}
+	fire(){
+		var x1=this.player.position.x;
+		var y1=this.player.position.y;
+		var targetX=this.player.aim_target.x-(this.player.stage.width/2-this.player.stage.camera.x);
+		var targetY=this.player.aim_target.y-(this.player.stage.height/2-this.player.stage.camera.y);
+		if(this.type=='fist'){
+			for(var i=0;i<this.player.stage.actors.length;i++){
+				if(this.player.stage.actors[i] instanceof Enemy){
+					var distX=this.player.stage.actors[i].position.x-x1;
+					var distY=this.player.stage.actors[i].position.y-y1;
+					var distTargetX=this.player.stage.actors[i].position.x-targetX;
+					var distTargetY=this.player.stage.actors[i].position.y-targetY;
+					if((Math.sqrt(distX*distX+distY*distY)<=this.player.radius+this.player.stage.actors[i].radius)&&
+						(Math.sqrt(distTargetX*distTargetX+distTargetY*distTargetY)<=this.player.stage.actors[i].radius)){
+						this.player.stage.actors[i].beingHit=true;
+						this.player.stage.actors[i].health-=5;
+					}
+				}
+				if(this.player.stage.actors[i] instanceof Obstacle){
+					var recX=this.player.stage.actors[i].position.x;
+					var recY=this.player.stage.actors[i].position.y;
+					var xRange=recX+this.player.stage.actors[i].width;
+					var yRange=recY+this.player.stage.actors[i].height;
+					if(((recY-this.player.radius-2<y1&&y1<yRange+this.player.radius+2)&&
+						(recX-this.player.radius-2<x1&&x1<xRange+this.player.radius+2))&&
+						(recX<=targetX&&targetX<=xRange&&recY<=targetY&&targetY<=yRange)){
+						this.player.stage.actors[i].beingHit=true;
+						this.player.stage.actors[i].health-=5;
+					}
+				}	
+			}
+		}
+		if(this.type=='pistol'&&this.ammo>0){
+			var x2=(40*(targetX-x1)/Math.sqrt((targetX-x1)*(targetX-x1)+(targetY-y1)*(targetY-y1)))+x1;
+			var y2=(40*(targetY-y1)/Math.sqrt((targetX-x1)*(targetX-x1)+(targetY-y1)*(targetY-y1)))+y1;
+			var position = new Pair(x2,y2);
+			var x3=12*(targetX-position.x)/Math.sqrt((targetX-position.x)*(targetX-position.x)
+					+(targetY-position.y)*(targetY-position.y));
+			var y3=12*(targetY-position.y)/Math.sqrt((targetX-position.x)*(targetX-position.x)
+					+(targetY-position.y)*(targetY-position.y));
+			var velocity=new Pair(x3, y3);
+			var colour='rgba(221,60,12,1)';
+			var radius=5;
+			var fireFrom=this.player;
+			var type='level1';
+			this.player.stage.addActor(new Bullet(this.player.stage, position, velocity, colour, radius, type, fireFrom));
+			this.ammo--;
+		}
+		if(this.type=='rifle'&&this.ammo>0){
+			var x2=(40*(targetX-x1)/Math.sqrt((targetX-x1)*(targetX-x1)+(targetY-y1)*(targetY-y1)))+x1;
+			var y2=(40*(targetY-y1)/Math.sqrt((targetX-x1)*(targetX-x1)+(targetY-y1)*(targetY-y1)))+y1;
+			var position = new Pair(x2,y2);
+			var x3=12*(targetX-position.x)/Math.sqrt((targetX-position.x)*(targetX-position.x)
+					+(targetY-position.y)*(targetY-position.y));
+			var y3=12*(targetY-position.y)/Math.sqrt((targetX-position.x)*(targetX-position.x)
+					+(targetY-position.y)*(targetY-position.y));
+			var velocity=new Pair(x3, y3);
+			var colour='rgba(221,60,12,1)';
+			var radius=5;
+			var fireFrom=this.player;
+			var type='level1';
+			this.player.stage.addActor(new Bullet(this.player.stage, position, velocity, colour, radius, type, fireFrom));
+			this.ammo--;
+
+		}
+		if(this.type=='rpg'&&this.ammo>0){
+			var x2=(40*(targetX-x1)/Math.sqrt((targetX-x1)*(targetX-x1)+(targetY-y1)*(targetY-y1)))+x1;
+			var y2=(40*(targetY-y1)/Math.sqrt((targetX-x1)*(targetX-x1)+(targetY-y1)*(targetY-y1)))+y1;
+			var position = new Pair(x2,y2);
+			var x3=12*(targetX-position.x)/Math.sqrt((targetX-position.x)*(targetX-position.x)
+					+(targetY-position.y)*(targetY-position.y));
+			var y3=12*(targetY-position.y)/Math.sqrt((targetX-position.x)*(targetX-position.x)
+					+(targetY-position.y)*(targetY-position.y));
+			var velocity=new Pair(x3, y3);
+			var colour='rgba(221,60,12,1)';
+			var radius=5;
+			var fireFrom=this.player;
+			var type='level1';
+			this.player.stage.addActor(new Bullet(this.player.stage, position, velocity, colour, radius, type, fireFrom));
+			this.ammo--;
+			
+		}
+
+	}
+}
 class Player extends Ball {
 	constructor(stage, position, velocity, colour, radius){
 		super(stage, position, velocity, colour, radius);
 		this.health=100;
-		this.weapon = 'rifle';
 		this.aim_target = new Pair(0, 0);
 		this.beingHit = false;
-		this.ammo=300;
+		this.weapons=[];
+		this.addWeapon('fist');
+		this.weaponIdx=0;
 		this.points=0;
 		this.deathCD=0;
 	}
-
+	switchWeapon(){
+		this.weaponIdx++;
+		if(this.weaponIdx>=this.weapons.length) this.weaponIdx=0;
+	}
+	addWeapon(weapon){
+		for(var i=0;i<this.weapons.length;i++){
+			if(this.weapons[i].type==weapon) {
+				this.weapons[i].addAmmo();
+				return;
+			}
+		}
+		var newWeapon=new Weapon(this, weapon);
+		this.weapons.push(newWeapon);
+	}
 	pickup(){
 		for(var i=0;i<this.stage.actors.length;i++){
 			if(this.stage.actors[i] instanceof Item){
@@ -693,17 +737,13 @@ class Player extends Ball {
 						if(this.health>100) this.health=100;
 					}
 					if(this.stage.actors[i].type=='ammo'){
-
-					}
-					if(this.stage.actors[i].type=='pistol'){
-
-					}
-					if(this.stage.actors[i].type=='rifle'){
-						
-					}
-					if(this.stage.actors[i].type=='rpg'){
-						
-					}
+						for(var j=0;j<this.weapons.length;j++){
+							this.weapons[j].addAmmo();
+						}
+					} 
+					if(this.stage.actors[i].type=='pistol') this.addWeapon('pistol');
+					if(this.stage.actors[i].type=='rifle') this.addWeapon('rifle');
+					if(this.stage.actors[i].type=='rpg') this.addWeapon('rpg');
 					return;
 				}
 			}
@@ -719,32 +759,7 @@ class Player extends Ball {
 		}	
 	}
 	fireWeapon() {
-		var x1=this.position.x;
-		var y1=this.position.y;
-		if(this.weapon=='none'){
-			return;
-		}
-		var targetX=this.aim_target.x-(this.stage.width/2-this.stage.camera.x);
-		var targetY=this.aim_target.y-(this.stage.height/2-this.stage.camera.y);
-		if(this.weapon=='rifle'){
-			if(this.ammo>0){
-				var x2=(40*(targetX-x1)/Math.sqrt((targetX-x1)*(targetX-x1)+(targetY-y1)*(targetY-y1)))+x1;
-				var y2=(40*(targetY-y1)/Math.sqrt((targetX-x1)*(targetX-x1)+(targetY-y1)*(targetY-y1)))+y1;
-				var position = new Pair(x2,y2);
-				var x3=12*(targetX-position.x)/Math.sqrt((targetX-position.x)*(targetX-position.x)
-					+(targetY-position.y)*(targetY-position.y));
-				var y3=12*(targetY-position.y)/Math.sqrt((targetX-position.x)*(targetX-position.x)
-					+(targetY-position.y)*(targetY-position.y));
-				var velocity=new Pair(x3, y3);
-				var colour='rgba(221,60,12,1)';
-				var radius=5;
-				var fireFrom=this;
-				var type='level1';
-				this.stage.addActor(new Bullet(this.stage, position, velocity, colour, radius, type, fireFrom));
-				this.ammo--;
-			}
-			
-		}
+		this.weapons[this.weaponIdx].fire();
 	}
 	step(){
 		if(this.health<0){
@@ -807,18 +822,116 @@ class Player extends Ball {
 		var y1=this.getStagePositionY(this.position.y);
 		var x = Math.round(x1);
 		var y = Math.round(y1);
-		context.beginPath(); 
-		context.arc(x, y, this.radius, 0, 2 * Math.PI, false); 
-		context.fill();
-		context.lineWidth=2;
-		
-		context.stroke();
-		if(this.weapon=='rifle'){
+		if(this.weapons[this.weaponIdx].type=='fist'){
+			var dist=Math.sqrt((this.aim_target.x-x1)*(this.aim_target.x-x1)+(this.aim_target.y-y1)*(this.aim_target.y-y1));
+			var cos=Math.abs(this.aim_target.x-x1)/dist;
+			var sin=Math.abs(this.aim_target.y-y1)/dist;
+			var mag=Math.abs((Math.sqrt(2)/2)*(cos-sin));
+			var mag2=Math.abs((Math.sqrt(2)/2)*(cos+sin));
+			var deltaY=mag*this.radius;
+			var deltaX=mag2*this.radius;
+			var x2=0.0, y2=0.0, x3=0.0, y3=0.0;
+			if(this.aim_target.x<=x1&&this.aim_target.y<=y1){
+				if(sin>=cos){
+					x2=x1-deltaX;
+					y2=y1-deltaY;
+					x3=x1+deltaY;
+					y3=y1-deltaX;
+				}else{
+					x2=x1-deltaX;
+					y2=y1+deltaY;
+					x3=x1-deltaY;
+					y3=y1-deltaX;
+				}
+			}
+			if(this.aim_target.x>=x1&&this.aim_target.y<=y1){
+				if(sin>=cos){
+					x2=x1-deltaY;
+					y2=y1-deltaX;
+					x3=x1+deltaX;
+					y3=y1-deltaY;
+				}else{
+					x2=x1+deltaY;
+					y2=y1-deltaX;
+					x3=x1+deltaX;
+					y3=y1+deltaY;		
+				}
+			}
+			if(this.aim_target.x>=x1&&this.aim_target.y>=y1){
+				if(sin>=cos){
+					x2=x1+deltaX;
+					y2=y1+deltaY;
+					x3=x1-deltaY;
+					y3=y1+deltaX;
+				}else{
+					x2=x1+deltaX;
+					y2=y1-deltaY;
+					x3=x1+deltaY;
+					y3=y1+deltaX;
+				}
+			}
+			if(this.aim_target.x<=x1&&this.aim_target.y>=y1){
+				if(sin>=cos){
+					x2=x1+deltaY;
+					y2=y1+deltaX;
+					x3=x1-deltaX;
+					y3=y1+deltaY;
+				}else{
+					x2=x1-deltaY;
+					y2=y1+deltaX;
+					x3=x1-deltaX;
+					y3=y1-deltaY;	
+				}
+			}
+			context.beginPath();
+			context.arc(x2, y2, 6, 0, 2 * Math.PI, false); 
+			context.fill();
+			context.lineWidth=2;
+			context.stroke();
+			context.beginPath();
+			context.arc(x3, y3, 8, 0, 2 * Math.PI, false); 
+			context.fill();
+			context.stroke();
+		}
+		if(this.weapons[this.weaponIdx].type=='pistol'){
 			var x2=(40*(this.aim_target.x-x1)/Math.sqrt((this.aim_target.x-x1)*(this.aim_target.x-x1)
 				+(this.aim_target.y-y1)*(this.aim_target.y-y1)))+x1;
 			var y2=(40*(this.aim_target.y-y1)/Math.sqrt((this.aim_target.x-x1)*(this.aim_target.x-x1)
 				+(this.aim_target.y-y1)*(this.aim_target.y-y1)))+y1;
+			context.lineWidth=4;
+			context.beginPath();
+			context.moveTo(Math.round(x1), Math.round(y1));
+			context.lineTo(Math.round(x2), Math.round(y2));
+			context.stroke();
+			context.beginPath();
+			context.arc(x, y, this.radius, 0, 2 * Math.PI, false); 
+			context.fill();
+			context.lineWidth=2;
+			context.stroke();
+			return;
+		}
+		context.beginPath();
+		context.arc(x, y, this.radius, 0, 2 * Math.PI, false); 
+		context.fill();
+		context.lineWidth=2;
+		context.stroke();
+		if(this.weapons[this.weaponIdx].type=='rifle'){
+			var x2=(45*(this.aim_target.x-x1)/Math.sqrt((this.aim_target.x-x1)*(this.aim_target.x-x1)
+				+(this.aim_target.y-y1)*(this.aim_target.y-y1)))+x1;
+			var y2=(45*(this.aim_target.y-y1)/Math.sqrt((this.aim_target.x-x1)*(this.aim_target.x-x1)
+				+(this.aim_target.y-y1)*(this.aim_target.y-y1)))+y1;
 			context.lineWidth = 6;
+			context.beginPath();
+			context.moveTo(Math.round(x1), Math.round(y1));
+			context.lineTo(Math.round(x2), Math.round(y2));
+			context.stroke();
+		}
+		if(this.weapons[this.weaponIdx].type=='rpg'){
+			var x2=(50*(this.aim_target.x-x1)/Math.sqrt((this.aim_target.x-x1)*(this.aim_target.x-x1)
+				+(this.aim_target.y-y1)*(this.aim_target.y-y1)))+x1;
+			var y2=(50*(this.aim_target.y-y1)/Math.sqrt((this.aim_target.x-x1)*(this.aim_target.x-x1)
+				+(this.aim_target.y-y1)*(this.aim_target.y-y1)))+y1;
+			context.lineWidth = 8;
 			context.beginPath();
 			context.moveTo(Math.round(x1), Math.round(y1));
 			context.lineTo(Math.round(x2), Math.round(y2));

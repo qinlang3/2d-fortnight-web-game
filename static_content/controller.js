@@ -355,17 +355,67 @@ function delete_account(){
         });
 }
 
+function clear_nav_active(){
+        $("#logout").css("color", "white");
+        $("#restart").css("color", "white");
+        $("#profile").css("color", "white");
+        $("#play").css("color", "white");
+        $("#instruction").css("color", "white");
+        return;
+
+}
+
 $(function(){
         // Setup all events here and display the appropriate UI
-        $("#loginSubmit").on('click',function(){ login(); });
+        $("#play").hover(
+        function(){ $(this).css("background-color", "darkgrey");}, 
+        function(){ $(this).css("background-color", "#323232");});
+        $("#logout").hover(
+        function(){ $(this).css("background-color", "darkgrey");}, 
+                function(){ $(this).css("background-color", "#323232");});
+        $("#instruction").hover(
+        function(){ $(this).css("background-color", "darkgrey");}, 
+        function(){ $(this).css("background-color", "#323232");});
+        $("#restart").hover(
+        function(){ $(this).css("background-color", "darkgrey");}, 
+        function(){ $(this).css("background-color", "#323232");});
+        $("#profile").hover(
+        function(){ $(this).css("background-color", "darkgrey");}, 
+        function(){ $(this).css("background-color", "#323232");});
+
+        $("#loginSubmit").on('click',function(){
+                clear_nav_active(); 
+                $("#play").css("color", "green");
+                login(); });
         $("#delete").on('click',function(){ delete_account(); });
         $("#registerSubmit").on('click',function(){ Nav_register(); });
-        // $("#register").on('click',function(){ register(); });
-        $("#logout").on('click',function(){ logout(); });
-        $("#instruction").on('click',function(){ instruction(); });
-        $("#restart").on('click',function(){ restartGame(); });
-        $("#profile").on('click',function(){ profile(); });
-        // $("#update").on('click',function(){ update_profile(); });
+        $("#play").on('click',function(){ 
+                clear_nav_active();
+                $(this).css("color", "green");
+                restartGame();
+                 });
+        $("#logout").on('click',function(){ 
+                clear_nav_active();
+                $(this).css("color", "green");
+                logout(); });
+        $("#instruction").on('click',function(){
+                clear_nav_active();
+                $(this).css("color", "green");
+                instruction(); });
+        $("#restart").on('click',function(){ 
+                restartGame(); 
+                clear_nav_active();
+                $("#play").css("color", "green");
+        });
+        $("#Back_login").on('click',function(){ 
+                $("#ui_register").hide();
+                $("#ui_login").show();});
+
+        $("#profile").on('click',function(){ 
+                profile(); 
+                clear_nav_active();
+                $(this).css("color", "green");});
+
         $(".resume").on('click',function(){ resumeGame(); });
         $("#ui_login").show();
         $("#ui_navigation").hide();

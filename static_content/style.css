@@ -6,17 +6,27 @@ body{
     font-family: sans-serif;   
     background: url(pic1.jpg);
      background-size: cover;
-     /* background: #34495e; */
-
 }
 
 
 #ui_login{
     width: 350px;
     height: 420px;
-    background: #000;
+    background:oldlace;
     top: 50%;
     left: 50%;
+    position: absolute;
+    transform: translate(-50%,-50%);
+    box-sizing: border-box;
+    padding: 70px 30px;
+    color: white;
+}
+#ui_profile{
+    width: 600px;
+    height: 420px;
+    background: #323232;
+    top: 60%;
+    left: 26%;
     position: absolute;
     transform: translate(-50%,-50%);
     box-sizing: border-box;
@@ -27,7 +37,7 @@ body{
 #ui_register{
     width: 350px;
     height: 620px;
-    background: #000;
+    background: #323232;
     top: 50%;
     left: 50%;
     position: absolute;
@@ -38,20 +48,21 @@ body{
 }
 
 
-#ui_login input, #ui_register input{
+#ui_login input, #ui_register input, #ui_profile input{
     width: 100%;
     margin-bottom: 20px;
 }
 
 #ui_login input[type="text"], input[type="password"],
-#ui_register input[type="text"], input[type="password"],input[type="date"], #Game_diff
+#ui_register input[type="text"], input[type="password"],input[type="date"], #Game_diff, #Game_diff_profile,
+#ui_profile input[type="text"], input[type="password"]
 {
     color:coral;
     background: transparent;
     outline: none;
     height: 40px;
     font-size: 22px;
-    border: 3px solid grey;
+    border: 3px solid gold;
     width:290px;
     border-radius: 60px;
     transition: 0.5s;
@@ -61,7 +72,9 @@ body{
 
 
 #ui_login input[type = "text"]:focus,#ui_login input[type = "password"]:focus,
-#ui_register input[type = "text"]:focus,#ui_register input[type = "password"]:focus, #ui_register input[type = "date"]:focus{
+#ui_register input[type = "text"]:focus,#ui_register input[type = "password"]:focus, #ui_register input[type = "date"]:focus,
+#ui_profile input[type = "text"]:focus,#ui_profile input[type = "password"]:focus,
+#Game_diff:focus, #Game_diff_profile:focus{
     border-color: #2ecc71;
 }
 
@@ -78,10 +91,60 @@ body{
     font-family: sans-serif; 
 }
 
+#ui_profile input[type="submit"]
+{
+    position: relative;
+    top:30px;
+    left:-32px;
+    right:40px;
+    border: 3px solid gold;
+    background-color: gainsboro;
+    font-size: 20px;
+    border-radius: 40px;
+    outline: none;
+    border: none;
+    height: 45px;
+    width:610px;
+    font-family: sans-serif; 
+}
+
 #ui_login input[type="submit"]:hover,
-#ui_register input[type="submit"]:hover
+#ui_register input[type="submit"]:hover,
+#ui_profile input[type="submit"]:hover
 {
     cursor: pointer;
     background: orange;
     color: #000;
 }
+li {
+    float: left;
+   
+  }
+
+ul {
+    list-style-type: none;
+    padding: 0; 
+    overflow: hidden;
+    background-color: #323232;
+    margin: 5px;
+  
+  }
+  
+  li a {
+     text-decoration: none;
+    display: block;
+    color: white;
+    padding: 27px 27px 27px 27px;
+  }
+
+  h2{
+    text-shadow: 1px 1px;
+  }
+
+  h1{
+    text-shadow: 2px 2px;
+  }
+
+  #Back_login{
+      color: black;
+  }

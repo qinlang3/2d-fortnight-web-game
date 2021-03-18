@@ -15,7 +15,7 @@
 
 	</head>
 	<body>
-		<h1>zzz</h1>
+		<h1>2D fortnite Game</h1>
 		<div id="ui_login">
 			<div>
 				<input type="text" id="username" placeholder="User Name" />
@@ -53,13 +53,17 @@
 				<span id="empty_err"></span>
 				<input type="submit" id="register" value="Register">
 			</form>
+			<a href="#" id="Back_login" >go back to login </a>
 			</div>
 		</div>
 		<div id="ui_navigation">
-			<input type="submit" id="restart" value="restart">
-			<input type="submit" id="logout" value="logout">
-			<input type="submit" id="instruction" value="instruction">
-			<input type="submit" id="profile" value="profile">
+		<ul>
+			<li><a class="active_nav" href="#" id="play">play</a></li>
+			<li><a  href="#" id="restart">restart</a></li>
+			<li><a href="#" id="logout">logout</a></li>
+			<li><a href="#" id="instruction">instruction</a></li>
+			<li><a href="#" id="profile">profile</a></li>
+		</ul>
 		</div>
 		<div id="ui_profile">
 		<form id="myform2" action="javascript:update_profile();">
@@ -75,12 +79,12 @@
 			title="Password should contain at least one capital letter and at least one number and the minimum length is 6" required>
 			<span id="pswerr_pro"></span>
 			<br><br>
-			<input type="radio" id="skill1" name="skill_pro" value="easy" required>
-			<label for="skill1">Easy</label>
-			<input type="radio" id="skill2" name="skill_pro" value="intedermediate">
-			<label for="skill2">Intedermediate</label>
-			<input type="radio" id="skill3" name="skill_pro" value="advanced">
-			<label for="skill3">Advanced</label><br><br>
+			<label for="Game_diff_profile">Game level</label>
+			<select id="Game_diff_profile">
+			  <option value="easy", id="skill1", name="skill_pro" value="easy">easy</option>
+			  <option value="intedermediate", id="skill2", name="skill_pro" value="intedermediate">intedermediate</option>
+			  <option value="advanced", id="skill3", name="skill_pro" value="advanced">advanced</option>
+			</select>
 			<input type="submit" id="update" value="update">
 			<input type="submit" class="resume" value="resume game">
 			<br>
@@ -104,11 +108,11 @@
 			</center>
 		</div>
 		<div id="ui_instruction">
-			<p>Move with WASD</p>
-			<p>Boxes can be destoryed and drop items, move next to them and press F to pick up</p>
-			<p>Aim with your mouse</p>
-			<p>Mouse click fires</p>
-			<p>Press R to switch between weapons</p>
+			<h2>Move with WASD</h2>
+			<h2>Boxes can be destoryed and drop items, move next to them and press F to pick up</h2>
+			<h2>Aim with your mouse</h2>
+			<h2>Mouse click fires</h2>
+			<h2>Press R to switch between weapons</h2>
 		</div>
 	</body>
 </html>

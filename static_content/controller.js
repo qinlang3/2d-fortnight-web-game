@@ -138,7 +138,7 @@ function login(){
 		startGame();
         }).fail(function(err){
                 $("#login_err").html("");
-                if (err.status == "402"){
+                if (err.status == "409"){
                         console.log("Your username and password does not match");
                         $("#login_err").html("Your username and password does not match");
                 }
@@ -179,9 +179,7 @@ function update_profile(){
 
 
         }).fail(function(err){
-                if (err.status == "401"){
-                        $("#emptyerr_pro").html("All the registration fields can not be empty");
-                }else if (err.status == "402"){
+                if (err.status == "402"){
                         $("#pswerr_pro").html("Your two password are not the same");
                 }
 
@@ -219,13 +217,10 @@ function register(){
         	$("#ui_login").show();
         	$("#ui_register").hide();
         }).fail(function(err){
-                if (err.status == "401"){
-                        $("#empty_err").html("All the registration fields can not be empty");
-                }else if (err.status == "402"){
+                if (err.status == "400"){
                         $("#psw_err").html("Your two password are not the same");
                         $('#psw-repeat').val("");
-                }else if (err.status == "403"){
-                        console.log("yoyoyo");
+                }else if (err.status == "409"){
                         $("#usrname_err").html("username already been used");
                         $("#regname").val("");
                 }

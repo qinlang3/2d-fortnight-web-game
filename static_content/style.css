@@ -4,9 +4,9 @@
 
 body{
     font-family: sans-serif;   
-    /* background: url(pic1.jpg); */
+    background: url(pic1.jpg);
      background-size: cover;
-     background: #34495e;
+     /* background: #34495e; */
 
 }
 

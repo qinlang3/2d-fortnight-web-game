@@ -13,11 +13,10 @@ class Stage {
 		// the logical width and height of the stage (display area)
 		this.width=canvas.width;
 		this.height=canvas.height;
-
+		this.difficulty='easy';
 		// the actual width and height of the map
 		this.mapWidth = 10000;
 		this.mapHeight = 10000;
-
 		// Add the player to the center of the map
 		var velocity = new Pair(0,0);
 		var radius = 24;
@@ -49,7 +48,7 @@ class Stage {
 			}
 		}
 		// Add in 50 enemies 
-		total=50;
+		total=20;
 		while(total>0){
 			var x=Math.floor((Math.random()*this.mapWidth)); 
 			var y=Math.floor((Math.random()*this.mapHeight)); 
@@ -57,20 +56,57 @@ class Stage {
 				result=this.checkOverlap(x-15,y-15,30,30);
 				if(!result){
 					var velocity = new Pair(rand(3), rand(3));
-					var red=111, green=221, blue=91;
 					var radius = 24;
-					var alpha = 1;
-					var colour= 'rgba('+red+','+green+','+blue+','+alpha+')';
+					var colour= 'rgba(111,221,91,1)';
 					var position = new Pair(x,y);
 					var type = 'level1';
 					this.addActor(new Enemy(this, position, velocity, colour, radius, type));
 					total--;
 				}
-				
+			}
+		}
+		total=20;
+		while(total>0){
+			var x=Math.floor((Math.random()*this.mapWidth)); 
+			var y=Math.floor((Math.random()*this.mapHeight)); 
+			if(this.getActor(x,y)===null){
+				result=this.checkOverlap(x-15,y-15,30,30);
+				if(!result){
+					var velocity = new Pair(rand(3), rand(3));
+					var radius = 24;
+					var colour= 'rgba(111,221,91,1)';
+					var position = new Pair(x,y);
+					var type = 'level2';
+					this.addActor(new Enemy(this, position, velocity, colour, radius, type));
+					total--;
+				}
+			}
+		}
+		total=10;
+		while(total>0){
+			var x=Math.floor((Math.random()*this.mapWidth)); 
+			var y=Math.floor((Math.random()*this.mapHeight)); 
+			if(this.getActor(x,y)===null){
+				result=this.checkOverlap(x-15,y-15,30,30);
+				if(!result){
+					var velocity = new Pair(rand(3), rand(3));
+					var radius = 28;
+					var colour= 'rgba(111,221,91,1)';
+					var position = new Pair(x,y);
+					var type = 'level3';
+					this.addActor(new Enemy(this, position, velocity, colour, radius, type));
+					total--;
+				}
 			}
 		}
 	}
-
+	checkWon(){
+		if(this.enemNum==0){
+			return true;
+		}else{
+			return false;
+		}
+	}
 	checkOverlap(x,y,width,height){
 		for(var i=0;i<this.actors.length;i++){
 			var x1=this.actors[i].position.x;
@@ -109,9 +145,6 @@ class Stage {
 		if(actor instanceof Enemy){
 			this.enemNum++;
 		}
-		//if(actor.type=='ammo'){
-			//this.itemNum++;
-		//}
 	}
 
 	addBullet(bullet){
@@ -121,6 +154,9 @@ class Stage {
 	removeActor(actor){
 		var index=this.actors.indexOf(actor);
 		if(index!=-1){
+			if(actor instanceof Enemy){
+				this.enemNum--;
+			}
 			this.actors.splice(index,1);
 		}
 	}
@@ -165,20 +201,50 @@ class Stage {
 
 	displayInfo(context){
 		context.fillStyle = 'rgba(0,0,0,1)';
-		context.font = '23px serif';
-		context.fillText('Health:', 800, 30);
-		context.fillText(this.player.health, 900, 30);
-		context.fillText('Ammo:', 800, 60);
-		context.fillText(this.player.weapons[this.player.weaponIdx].ammo, 900, 60);
-		context.fillText('Points:', 800, 90);
-		context.fillText(this.player.points, 900, 90);
-		context.fillText('x:', 800, 120);
-		context.fillText(Math.round(this.player.position.x), 900, 120);
-		context.fillText('y:', 800, 150);
-		context.fillText(Math.round(this.player.position.y), 900, 150);
+		context.font='bold 20px Arial';
+		context.fillText('Remaining Targets:', 20, 33);
+		context.fillText(this.enemNum, 100, 60);
+		context.font = 'bold 23px Arial';
+		context.fillText('Health:', 970, 33);
+		context.fillStyle='rgba(228,65,65,1)';
+		var len=Math.round(this.player.health*1.2);
+		context.fillRect(1060, 10, len, 30);
+		context.fillStyle='rgba(0,0,0,1)';
+		context.lineWidth=2;
+		context.strokeRect(1060, 10, 120, 30);
+		context.fillText('Points:', 970, 70);
+		context.fillText(this.player.points, 1065, 72);
+		context.fillText('Difficulty:', 970, 102);
+		context.fillText(this.difficulty, 1082, 102);
+		if(this.player.weapons[this.player.weaponIdx].type=='fist'){
+			var fist=document.getElementById('fist');
+			context.drawImage(fist, 1040, 125, 45, 40);
+		}
+		if(this.player.weapons[this.player.weaponIdx].type=='pistol'){
+			var pistol=document.getElementById('pistol');
+			context.drawImage(pistol, 1040, 125, 50, 40);
+
+		}
+		if(this.player.weapons[this.player.weaponIdx].type=='rifle'){
+			var rifle=document.getElementById('rifle');
+			context.drawImage(rifle, 1000, 125, 120, 40);
+		}
+		if(this.player.weapons[this.player.weaponIdx].type=='rpg'){
+			var rpg=document.getElementById('rpg');
+			context.drawImage(rpg, 1040, 125, 65, 55);
+		}
+		var ammo=document.getElementById('ammo');
+		context.drawImage(ammo, 1020, 180, 40, 30);
+		context.fillText(this.player.weapons[this.player.weaponIdx].ammo, 1065, 200);
+		context.lineWidth=2;
+		context.strokeRect(995, 120, 150, 100);
+		if(this.checkWon()){
+			context.font = 'bold 30px Arial';
+			context.fillText('You Won!', 500, 380);
+		}
 		if(this.player.health==0){
-			context.font = '30px serif';
-			context.fillText('You Died!', 350, 400);
+			context.font = 'bold 30px Arial';
+			context.fillText('You Died!', 500, 380);
 		}
 	}
 	// return the first actor at coordinates (x,y) return null if there is no such actor
@@ -248,6 +314,7 @@ class Obstacle extends Ball {
 		this.health=100;
 		this.deathCD=0;
 		this.beingHit=false;
+		this.addPoints=false;
 	}
 	step(){
 		if(this.health<0){
@@ -267,9 +334,12 @@ class Obstacle extends Ball {
 			this.deathCD++;
 			if(this.deathCD==20){ // dying period ends, remove this actor
 				var gen=randint(100);
-				if(gen<=90){	// 70% probability to drop some item
+				if(gen<=90){	// 90% probability to drop some item
 					var position=new Pair(Math.round(this.position.x+this.width/2), Math.round(this.position.y+this.height/2));
 					this.stage.addActor(new Item(this.stage, position, new Pair(0, 0), 'rgba(0,0,0,1)',15));
+				}
+				if(this.addPoints){
+					this.stage.player.points++;
 				}
 				this.stage.removeActor(this);
 			}
@@ -344,7 +414,53 @@ class Item extends Ball {
 	}
 
 }
+class Explosive extends Ball {
+	constructor(stage, position, velocity, colour, radius, fireFrom, victim){
+		super(stage, position, velocity, colour, radius);
+		this.fireFrom=fireFrom; // the actor who fired this bullet
+		this.counter=0;
+		this.victims=[];
+		this.victims.push(victim);
+	}
+	step(){
+		if(this.counter<=25){
+			this.radius+=2;
+		}else{
+			this.radius-=2;
+		}
+		this.counter++;
+		if(this.counter==50){
+			this.stage.removeActor(this);
+			return;
+		}
+		for(var i=0;i<this.stage.actors.length;i++){
+			if((((this.stage.actors[i] instanceof Player)&&(this.fireFrom instanceof Enemy))||
+				((this.stage.actors[i] instanceof Enemy)&&(this.fireFrom instanceof Player)))&&
+				(!this.victims.includes(this.stage.actors[i]))){
+				var distX=this.stage.actors[i].position.x-this.position.x;
+				var distY=this.stage.actors[i].position.y-this.position.y;
+				if(Math.sqrt(distX*distX+distY*distY)<=this.radius+this.stage.actors[i].radius){
+					if(this.stage.actors[i].health>0){
+						this.stage.actors[i].beingHit=true;
+						this.stage.actors[i].health-=50;
+						this.victims.push(this.stage.actors[i]);
+					}
+				}
+			}
+		}
+	}
+	draw(context){
+		var stageX=this.getStagePositionX(this.position.x);
+		var stageY=this.getStagePositionY(this.position.y);
+		var x = Math.round(stageX);
+		var y = Math.round(stageY);
+		context.fillStyle=this.colour;
+		context.beginPath(); 
+		context.arc(x, y, this.radius, 0, 2 * Math.PI, false); 
+		context.fill();
+	}
 
+}
 class Bullet extends Ball {
 	constructor(stage, position, velocity, colour, radius, type, fireFrom){
 		super(stage, position, velocity, colour, radius);
@@ -352,37 +468,56 @@ class Bullet extends Ball {
 		this.fireFrom=fireFrom; // the actor who fired this bullet
 		this.range=0;
 		if(this.type=='level1'){
-			this.range=100;
+			this.range=40;
 		}
+		if(this.type=='level2'){
+			this.range=70;
+		}
+		if(this.type=='level3'){
+			this.range=30;
+		}
+	}
+	explosive(victim){
+		var colour='rgba(255, 158, 12, 0.8)';
+		this.stage.addActor(new Explosive(this.stage, this.position, new Pair(0,0), colour, 1, this.fireFrom, victim)); 
 	}
 	step() {
 		// bullet has limited range
 		if(this.range==0){
+			if(this.type=='level3'){
+				this.explosive(null);
+			}
 			this.stage.removeActor(this);
 			return;
 		}
 		this.position.x+=this.velocity.x;
-		this.position.y+=this.velocity.y;
-
-		// bullet hit obstacles or edge
+		this.position.y+=this.velocity.y;	
 		for(var i=0;i<this.stage.actors.length;i++){
 			if(this.stage.actors[i] instanceof Obstacle){
 				var x=this.stage.actors[i].position.x;
 				var y=this.stage.actors[i].position.y;
 				var xRange=x+this.stage.actors[i].width;
 				var yRange=y+this.stage.actors[i].height;
+				// bullet hit obstacles or edge
 				if((y-this.radius<this.position.y&&this.position.y<yRange+this.radius)&&
 					(x-this.radius<this.position.x&&this.position.x<xRange+this.radius)){
 					if(this.stage.actors[i].health>0){
 						this.stage.actors[i].beingHit=true;
-						this.stage.actors[i].health-=10;
+						if(this.type=='level1'||this.type=='level2'){
+							this.stage.actors[i].health-=10;
+						}else{
+							this.stage.actors[i].health-=50;
+							this.explosive(this.stage.actors[i]);
+						}
+						if(this.stage.actors[i].health<=0&&this.fireFrom instanceof Player){
+							this.stage.actors[i].addPoints=true;
+						}
 					}
 					this.stage.removeActor(this);
 					return;
 				}
 			}
 		}
-
 		if(this.position.y<=0||this.position.y>=this.stage.mapHeight|| 
 			this.position.x<=0||this.position.x>=this.stage.mapWidth){
 			this.stage.removeActor(this);
@@ -397,11 +532,16 @@ class Bullet extends Ball {
 				distY=this.stage.actors[i].position.y-this.position.y;
 				// bullet hit someone
 				if(Math.sqrt(distX*distX+distY*distY)<=this.radius+this.stage.actors[i].radius){
-					this.stage.removeActor(this);
 					if(this.stage.actors[i].health>0){
 						this.stage.actors[i].beingHit=true;
-						this.stage.actors[i].health-=10;
+						if(this.type=='level1'||this.type=='level2'){
+							this.stage.actors[i].health-=10;
+						}else{
+							this.stage.actors[i].health-=50;
+							this.explosive(this.stage.actors[i]);
+						}
 					}
+					this.stage.removeActor(this);
 					return;
 				}
 			}
@@ -424,15 +564,14 @@ class Enemy extends Ball {
 		super(stage, position, velocity, colour, radius);
 		this.type=type;
 		this.health=50;
-		this.weapon='none';
-		if(this.type=='level1'){
-			this.weapon='rifle';
-		}
+		this.weapon='fist';
+		if(this.type=='level2') this.weapon='rifle';
+		if(this.type=='level3') {this.health=200; this.weapon='rpg';}
 	
 		this.aim_target = new Pair(0, 0);  // Aim position which indicates the map position 
 										   // where the aim crosshair is pointed at. 
 		this.beingHit = false;
-		this.fireCD=50+randint(20);
+		this.fireCD=0;
 		this.deathCD=0;
 	}
 	aim(target){
@@ -447,33 +586,55 @@ class Enemy extends Ball {
 	fireWeapon() {
 		var x1=this.position.x;
 		var y1=this.position.y;
-		if(this.weapon=='none'){
-			var distX=this.stage.player.position.x-x1;
-			var distY=this.stage.player.position.y-y1;
-			if(Math.sqrt(distX*distX+distY*distY)<=this.radius+this.stage.player.radius){
-				if(this.stage.player.health>0){
-					this.stage.player.beingHit=true;
-					this.stage.player.health-=5;
+		if(this.fireCD==0){
+			if(this.weapon=='fist'){
+				var distX=this.stage.player.position.x-x1;
+				var distY=this.stage.player.position.y-y1;
+				if(Math.sqrt(distX*distX+distY*distY)<=this.radius+this.stage.player.radius){
+					if(this.stage.player.health>0){
+						this.stage.player.beingHit=true;
+						this.stage.player.health-=5;
+					}
 				}
+				this.fireCD=50+randint(10);
+				return;
 			}
-			return;
-		}
-		var targetX = this.aim_target.x;
-		var targetY = this.aim_target.y;
-		if(this.weapon=='rifle'){
-			var x2=(40*(targetX-x1)/Math.sqrt((targetX-x1)*(targetX-x1)+(targetY-y1)*(targetY-y1)))+x1;
-			var y2=(40*(targetY-y1)/Math.sqrt((targetX-x1)*(targetX-x1)+(targetY-y1)*(targetY-y1)))+y1;
-			var position = new Pair(x2,y2);
-			var x3=12*(targetX-position.x)/Math.sqrt((targetX-position.x)*(targetX-position.x)
-				+(targetY-position.y)*(targetY-position.y));
-			var y3=12*(targetY-position.y)/Math.sqrt((targetX-position.x)*(targetX-position.x)
-				+(targetY-position.y)*(targetY-position.y));
-			var velocity=new Pair(x3, y3);
-			var colour='rgba(221,60,12,1)';
-			var radius=5;
-			var fireFrom=this;
-			var type='level1';
-			this.stage.addActor(new Bullet(this.stage, position, velocity, colour, radius, type, fireFrom));
+			var targetX = this.aim_target.x;
+			var targetY = this.aim_target.y;
+			if(this.weapon=='rifle'){
+				var x2=(45*(targetX-x1)/Math.sqrt((targetX-x1)*(targetX-x1)+(targetY-y1)*(targetY-y1)))+x1;
+				var y2=(45*(targetY-y1)/Math.sqrt((targetX-x1)*(targetX-x1)+(targetY-y1)*(targetY-y1)))+y1;
+				var position = new Pair(x2,y2);
+				var x3=14*(targetX-position.x)/Math.sqrt((targetX-position.x)*(targetX-position.x)
+					+(targetY-position.y)*(targetY-position.y));
+				var y3=14*(targetY-position.y)/Math.sqrt((targetX-position.x)*(targetX-position.x)
+					+(targetY-position.y)*(targetY-position.y));
+				var velocity=new Pair(x3, y3);
+				var colour='rgba(221,60,12,1)';
+				var radius=5;
+				var fireFrom=this;
+				var type='level2';
+				this.stage.addActor(new Bullet(this.stage, position, velocity, colour, radius, type, fireFrom));
+				this.fireCD=30+randint(10);
+				return;
+			}
+			if(this.weapon=='rpg'){
+				var x2=(45*(targetX-x1)/Math.sqrt((targetX-x1)*(targetX-x1)+(targetY-y1)*(targetY-y1)))+x1;
+				var y2=(45*(targetY-y1)/Math.sqrt((targetX-x1)*(targetX-x1)+(targetY-y1)*(targetY-y1)))+y1;
+				var position = new Pair(x2,y2);
+				var x3=10*(targetX-position.x)/Math.sqrt((targetX-position.x)*(targetX-position.x)
+					+(targetY-position.y)*(targetY-position.y));
+				var y3=10*(targetY-position.y)/Math.sqrt((targetX-position.x)*(targetX-position.x)
+					+(targetY-position.y)*(targetY-position.y));
+				var velocity=new Pair(x3, y3);
+				var colour='rgba(221,60,12,1)';
+				var radius=8;
+				var fireFrom=this;
+				var type='level3';
+				this.stage.addActor(new Bullet(this.stage, position, velocity, colour, radius, type, fireFrom));
+				this.fireCD=60+randint(10);
+				return;
+			}
 		}
 	}
 	step(){
@@ -484,7 +645,6 @@ class Enemy extends Ball {
 		if(this.health>0){
 			this.position.x+=this.velocity.x;
 			this.position.y+=this.velocity.y;
-
 			for(var i=0;i<this.stage.actors.length;i++){
 				if(this.stage.actors[i] instanceof Obstacle){
 					var x=this.stage.actors[i].position.x;
@@ -526,7 +686,6 @@ class Enemy extends Ball {
 				this.position.y=this.stage.mapHeight;
 				this.velocity.y=-Math.abs(this.velocity.y);
 			}
-
 			var distX=this.stage.player.position.x-this.position.x;
 			var distY=this.stage.player.position.y-this.position.y;
 			var dist=Math.sqrt(distX*distX+distY*distY);
@@ -540,12 +699,8 @@ class Enemy extends Ball {
 				this.aim(this.stage.player.position);
 				// move towards the player
 				this.headTo(this.stage.player.position);
-				// if fireCD is down to zero, fire weapon
-				if(this.fireCD==0){
-					this.fireWeapon();
-					this.fireCD=50+randint(20);
-				}
-			}
+				this.fireWeapon();
+			}		
 		}
 	}
 	draw(context){
@@ -561,9 +716,14 @@ class Enemy extends Ball {
 			this.deathCD++;
 			if(this.deathCD==20){ // dying period ends, remove this actor
 				this.stage.removeActor(this);
-				this.stage.enemNum--;
 				if(this.type=='level1'){
 					this.stage.player.points+=2;
+				}
+				if(this.type=='level2'){
+					this.stage.player.points+=4;
+				}
+				if(this.type=='level3'){
+					this.stage.player.points+=10;
 				}
 			}
 		}else{  // otherwise
@@ -571,30 +731,124 @@ class Enemy extends Ball {
 		}
 		var stageX=this.getStagePositionX(this.position.x);
 		var stageY=this.getStagePositionY(this.position.y);
+		var x1=this.getStagePositionX(this.aim_target.x);
+		var y1=this.getStagePositionY(this.aim_target.y);
 		var x = Math.round(stageX);
 		var y = Math.round(stageY);
-		/*
-		if(this.type=='ammo'){
-			
-		*/
-		
+		if(this.weapon=='fist'){
+			var dist=Math.sqrt((x1-stageX)*(x1-stageX)+(y1-stageY)*(y1-stageY));
+			var cos=Math.abs(x1-stageX)/dist;
+			var sin=Math.abs(y1-stageY)/dist;
+			var mag=Math.abs((Math.sqrt(2)/2)*(cos-sin));
+			var mag2=Math.abs((Math.sqrt(2)/2)*(cos+sin));
+			var deltaY=mag*this.radius;
+			var deltaX=mag2*this.radius;
+			var x2=0.0, y2=0.0, x3=0.0, y3=0.0;
+			if(x1<=stageX&&y1<=stageY){
+				if(sin>=cos){
+					x2=stageX-deltaX;
+					y2=stageY-deltaY;
+					x3=stageX+deltaY;
+					y3=stageY-deltaX;
+				}else{
+					x2=stageX-deltaX;
+					y2=stageY+deltaY;
+					x3=stageX-deltaY;
+					y3=stageY-deltaX;
+				}
+			}
+			if(x1>=stageX&&y1<=stageY){
+				if(sin>=cos){
+					x2=stageX-deltaY;
+					y2=stageY-deltaX;
+					x3=stageX+deltaX;
+					y3=stageY-deltaY;
+				}else{
+					x2=stageX+deltaY;
+					y2=stageY-deltaX;
+					x3=stageX+deltaX;
+					y3=stageY+deltaY;		
+				}
+			}
+			if(x1>=stageX&&y1>=stageY){
+				if(sin>=cos){
+					x2=stageX+deltaX;
+					y2=stageY+deltaY;
+					x3=stageX-deltaY;
+					y3=stageY+deltaX;
+				}else{
+					x2=stageX+deltaX;
+					y2=stageY-deltaY;
+					x3=stageX+deltaY;
+					y3=stageY+deltaX;
+				}
+			}
+			if(x1<=stageX&&y1>=stageY){
+				if(sin>=cos){
+					x2=stageX+deltaY;
+					y2=stageY+deltaX;
+					x3=stageX-deltaX;
+					y3=stageY+deltaY;
+				}else{
+					x2=stageX-deltaY;
+					y2=stageY+deltaX;
+					x3=stageX-deltaX;
+					y3=stageY-deltaY;	
+				}
+			}
+			context.beginPath();
+			context.arc(x2, y2, 6, 0, 2 * Math.PI, false); 
+			context.fill();
+			context.lineWidth=2;
+			context.stroke();
+			context.beginPath();
+			context.arc(x3, y3, 8, 0, 2 * Math.PI, false); 
+			context.fill();
+			context.stroke();
 			context.beginPath(); 
 			context.arc(x, y, this.radius, 0, 2 * Math.PI, false); 
 			context.fill();
 			context.lineWidth=2;
 			context.stroke();
-			if(this.weapon=='rifle'){
-				var x1=this.getStagePositionX(this.aim_target.x);
-				var y1=this.getStagePositionY(this.aim_target.y);
-				var x2=(40*(x1-stageX)/Math.sqrt((x1-stageX)*(x1-stageX)+(y1-stageY)*(y1-stageY)))+stageX;
-				var y2=(40*(y1-stageY)/Math.sqrt((x1-stageX)*(x1-stageX)+(y1-stageY)*(y1-stageY)))+stageY;
-				context.lineWidth = 6;
-				context.beginPath();
-				context.moveTo(x, y);
-				context.lineTo(Math.round(x2), Math.round(y2));
-				context.stroke();
-				
-			}
+			return;
+		}
+		if(this.weapon=='rifle'){
+			context.beginPath(); 
+			context.arc(x, y, this.radius, 0, 2 * Math.PI, false); 
+			context.fill();
+			context.lineWidth=2;
+			context.stroke();
+			var x2=(45*(x1-stageX)/Math.sqrt((x1-stageX)*(x1-stageX)+(y1-stageY)*(y1-stageY)))+stageX;
+			var y2=(45*(y1-stageY)/Math.sqrt((x1-stageX)*(x1-stageX)+(y1-stageY)*(y1-stageY)))+stageY;
+			context.lineWidth = 6;
+			context.beginPath();
+			context.moveTo(x, y);
+			context.lineTo(Math.round(x2), Math.round(y2));
+			context.stroke();	
+		}
+		if(this.weapon=='rpg'){
+			context.beginPath(); 
+			context.arc(x, y, this.radius, 0, 2 * Math.PI, false); 
+			context.fill();
+			context.lineWidth=2;
+			context.stroke();
+			var x2=(45*(x1-stageX)/Math.sqrt((x1-stageX)*(x1-stageX)
+				+(y1-stageY)*(y1-stageY)))+stageX;
+			var y2=(45*(y1-stageY)/Math.sqrt((x1-stageX)*(x1-stageX)
+				+(y1-stageY)*(y1-stageY)))+stageY;
+			var x3=((stageX-x1)*this.radius/Math.sqrt((x1-stageX)*(x1-stageX)
+				+(y1-stageY)*(y1-stageY)))+stageX;
+			var y3=((stageY-y1)*this.radius/Math.sqrt((x1-stageX)*(x1-stageX)
+				+(y1-stageY)*(y1-stageY)))+stageY;
+			context.lineWidth = 8;
+			context.beginPath();
+			context.moveTo(Math.round(x3), Math.round(y3));
+			context.lineTo(Math.round(x2), Math.round(y2));
+			context.strokeStyle='#1b6309';
+			context.stroke();
+			context.strokeStyle='#000000';
+			return;
+		}
 	}
 }
 
@@ -603,15 +857,15 @@ class Weapon {
 		this.player=player;
 		this.type=type;
 		this.ammo=0;
-		this.fireCD=50;
-		if(this.type=='pistol') {this.ammo+=30;this.fireCD=40;}
-		if(this.type=='rifle') {this.ammo+=60;this.fireCD=40;}
-		if(this.type=='rpg') {this.ammo+=5;this.fireCD=40;}
+		this.fireCD=0;
+		if(this.type=='pistol') this.ammo+=30;
+		if(this.type=='rifle') this.ammo+=60;
+		if(this.type=='rpg') this.ammo+=5;
 	}
 	addAmmo(){
 		if(this.type=='fist') return;
-		if(this.type=='pistol') this.ammo+=15;
-		if(this.type=='rifle') this.ammo+=30;
+		if(this.type=='pistol') this.ammo+=20;
+		if(this.type=='rifle') this.ammo+=40;
 		if(this.type=='rpg') this.ammo+=5;
 	}
 	fire(){
@@ -619,84 +873,88 @@ class Weapon {
 		var y1=this.player.position.y;
 		var targetX=this.player.aim_target.x-(this.player.stage.width/2-this.player.stage.camera.x);
 		var targetY=this.player.aim_target.y-(this.player.stage.height/2-this.player.stage.camera.y);
-		if(this.type=='fist'){
-			for(var i=0;i<this.player.stage.actors.length;i++){
-				if(this.player.stage.actors[i] instanceof Enemy){
-					var distX=this.player.stage.actors[i].position.x-x1;
-					var distY=this.player.stage.actors[i].position.y-y1;
-					var distTargetX=this.player.stage.actors[i].position.x-targetX;
-					var distTargetY=this.player.stage.actors[i].position.y-targetY;
-					if((Math.sqrt(distX*distX+distY*distY)<=this.player.radius+this.player.stage.actors[i].radius)&&
-						(Math.sqrt(distTargetX*distTargetX+distTargetY*distTargetY)<=this.player.stage.actors[i].radius)){
-						this.player.stage.actors[i].beingHit=true;
-						this.player.stage.actors[i].health-=5;
+		if(this.fireCD==0){ // player can only attack or fire iff weapon's cool down is 0
+			if(this.type=='fist'){
+				for(var i=0;i<this.player.stage.actors.length;i++){
+					if(this.player.stage.actors[i] instanceof Enemy){
+						var distX=this.player.stage.actors[i].position.x-x1;
+						var distY=this.player.stage.actors[i].position.y-y1;
+						var distTargetX=this.player.stage.actors[i].position.x-targetX;
+						var distTargetY=this.player.stage.actors[i].position.y-targetY;
+						if((Math.sqrt(distX*distX+distY*distY)<=this.player.radius+this.player.stage.actors[i].radius)&&
+							(Math.sqrt(distTargetX*distTargetX+distTargetY*distTargetY)<=this.player.stage.actors[i].radius)){
+							this.player.stage.actors[i].beingHit=true;
+							this.player.stage.actors[i].health-=5;
+						}
 					}
+					if(this.player.stage.actors[i] instanceof Obstacle){
+						var recX=this.player.stage.actors[i].position.x;
+						var recY=this.player.stage.actors[i].position.y;
+						var xRange=recX+this.player.stage.actors[i].width;
+						var yRange=recY+this.player.stage.actors[i].height;
+						if(((recY-this.player.radius-2<y1&&y1<yRange+this.player.radius+2)&&
+							(recX-this.player.radius-2<x1&&x1<xRange+this.player.radius+2))&&
+							(recX<=targetX&&targetX<=xRange&&recY<=targetY&&targetY<=yRange)){
+							this.player.stage.actors[i].beingHit=true;
+							this.player.stage.actors[i].health-=5;
+						}
+					}	
 				}
-				if(this.player.stage.actors[i] instanceof Obstacle){
-					var recX=this.player.stage.actors[i].position.x;
-					var recY=this.player.stage.actors[i].position.y;
-					var xRange=recX+this.player.stage.actors[i].width;
-					var yRange=recY+this.player.stage.actors[i].height;
-					if(((recY-this.player.radius-2<y1&&y1<yRange+this.player.radius+2)&&
-						(recX-this.player.radius-2<x1&&x1<xRange+this.player.radius+2))&&
-						(recX<=targetX&&targetX<=xRange&&recY<=targetY&&targetY<=yRange)){
-						this.player.stage.actors[i].beingHit=true;
-						this.player.stage.actors[i].health-=5;
-					}
-				}	
+				this.fireCD=15;
+			}
+			if(this.type=='pistol'&&this.ammo>0){
+				var x2=(40*(targetX-x1)/Math.sqrt((targetX-x1)*(targetX-x1)+(targetY-y1)*(targetY-y1)))+x1;
+				var y2=(40*(targetY-y1)/Math.sqrt((targetX-x1)*(targetX-x1)+(targetY-y1)*(targetY-y1)))+y1;
+				var position = new Pair(x2,y2);
+				var x3=12*(targetX-position.x)/Math.sqrt((targetX-position.x)*(targetX-position.x)
+						+(targetY-position.y)*(targetY-position.y));
+				var y3=12*(targetY-position.y)/Math.sqrt((targetX-position.x)*(targetX-position.x)
+						+(targetY-position.y)*(targetY-position.y));
+				var velocity=new Pair(x3, y3);
+				var colour='rgba(221,60,12,1)';
+				var radius=5;
+				var fireFrom=this.player;
+				var type='level1';
+				this.player.stage.addActor(new Bullet(this.player.stage, position, velocity, colour, radius, type, fireFrom));
+				this.ammo--;
+				this.fireCD=20;
+			}
+			if(this.type=='rifle'&&this.ammo>0){
+				var x2=(45*(targetX-x1)/Math.sqrt((targetX-x1)*(targetX-x1)+(targetY-y1)*(targetY-y1)))+x1;
+				var y2=(45*(targetY-y1)/Math.sqrt((targetX-x1)*(targetX-x1)+(targetY-y1)*(targetY-y1)))+y1;
+				var position = new Pair(x2,y2);
+				var x3=14*(targetX-position.x)/Math.sqrt((targetX-position.x)*(targetX-position.x)
+					+(targetY-position.y)*(targetY-position.y));
+				var y3=14*(targetY-position.y)/Math.sqrt((targetX-position.x)*(targetX-position.x)
+					+(targetY-position.y)*(targetY-position.y));
+				var velocity=new Pair(x3, y3);
+				var colour='rgba(221,60,12,1)';
+				var radius=5;
+				var fireFrom=this.player;
+				var type='level2';
+				this.player.stage.addActor(new Bullet(this.player.stage, position, velocity, colour, radius, type, fireFrom));
+				this.ammo--;
+				this.fireCD=5;
+
+			}
+			if(this.type=='rpg'&&this.ammo>0){
+				var x2=(45*(targetX-x1)/Math.sqrt((targetX-x1)*(targetX-x1)+(targetY-y1)*(targetY-y1)))+x1;
+				var y2=(45*(targetY-y1)/Math.sqrt((targetX-x1)*(targetX-x1)+(targetY-y1)*(targetY-y1)))+y1;
+				var position = new Pair(x2,y2);
+				var x3=10*(targetX-position.x)/Math.sqrt((targetX-position.x)*(targetX-position.x)
+					+(targetY-position.y)*(targetY-position.y));
+				var y3=10*(targetY-position.y)/Math.sqrt((targetX-position.x)*(targetX-position.x)
+					+(targetY-position.y)*(targetY-position.y));
+				var velocity=new Pair(x3, y3);
+				var colour='rgba(221,60,12,1)';
+				var radius=8;
+				var fireFrom=this.player;
+				var type='level3';
+				this.player.stage.addActor(new Bullet(this.player.stage, position, velocity, colour, radius, type, fireFrom));
+				this.ammo--;
+				this.fireCD=40;		
 			}
 		}
-		if(this.type=='pistol'&&this.ammo>0){
-			var x2=(40*(targetX-x1)/Math.sqrt((targetX-x1)*(targetX-x1)+(targetY-y1)*(targetY-y1)))+x1;
-			var y2=(40*(targetY-y1)/Math.sqrt((targetX-x1)*(targetX-x1)+(targetY-y1)*(targetY-y1)))+y1;
-			var position = new Pair(x2,y2);
-			var x3=12*(targetX-position.x)/Math.sqrt((targetX-position.x)*(targetX-position.x)
-					+(targetY-position.y)*(targetY-position.y));
-			var y3=12*(targetY-position.y)/Math.sqrt((targetX-position.x)*(targetX-position.x)
-					+(targetY-position.y)*(targetY-position.y));
-			var velocity=new Pair(x3, y3);
-			var colour='rgba(221,60,12,1)';
-			var radius=5;
-			var fireFrom=this.player;
-			var type='level1';
-			this.player.stage.addActor(new Bullet(this.player.stage, position, velocity, colour, radius, type, fireFrom));
-			this.ammo--;
-		}
-		if(this.type=='rifle'&&this.ammo>0){
-			var x2=(40*(targetX-x1)/Math.sqrt((targetX-x1)*(targetX-x1)+(targetY-y1)*(targetY-y1)))+x1;
-			var y2=(40*(targetY-y1)/Math.sqrt((targetX-x1)*(targetX-x1)+(targetY-y1)*(targetY-y1)))+y1;
-			var position = new Pair(x2,y2);
-			var x3=12*(targetX-position.x)/Math.sqrt((targetX-position.x)*(targetX-position.x)
-					+(targetY-position.y)*(targetY-position.y));
-			var y3=12*(targetY-position.y)/Math.sqrt((targetX-position.x)*(targetX-position.x)
-					+(targetY-position.y)*(targetY-position.y));
-			var velocity=new Pair(x3, y3);
-			var colour='rgba(221,60,12,1)';
-			var radius=5;
-			var fireFrom=this.player;
-			var type='level1';
-			this.player.stage.addActor(new Bullet(this.player.stage, position, velocity, colour, radius, type, fireFrom));
-			this.ammo--;
-
-		}
-		if(this.type=='rpg'&&this.ammo>0){
-			var x2=(40*(targetX-x1)/Math.sqrt((targetX-x1)*(targetX-x1)+(targetY-y1)*(targetY-y1)))+x1;
-			var y2=(40*(targetY-y1)/Math.sqrt((targetX-x1)*(targetX-x1)+(targetY-y1)*(targetY-y1)))+y1;
-			var position = new Pair(x2,y2);
-			var x3=12*(targetX-position.x)/Math.sqrt((targetX-position.x)*(targetX-position.x)
-					+(targetY-position.y)*(targetY-position.y));
-			var y3=12*(targetY-position.y)/Math.sqrt((targetX-position.x)*(targetX-position.x)
-					+(targetY-position.y)*(targetY-position.y));
-			var velocity=new Pair(x3, y3);
-			var colour='rgba(221,60,12,1)';
-			var radius=5;
-			var fireFrom=this.player;
-			var type='level1';
-			this.player.stage.addActor(new Bullet(this.player.stage, position, velocity, colour, radius, type, fireFrom));
-			this.ammo--;
-			
-		}
-
 	}
 }
 class Player extends Ball {
@@ -707,6 +965,9 @@ class Player extends Ball {
 		this.beingHit = false;
 		this.weapons=[];
 		this.addWeapon('fist');
+		this.addWeapon('pistol');
+		this.addWeapon('rifle');
+		this.addWeapon('rpg');
 		this.weaponIdx=0;
 		this.points=0;
 		this.deathCD=0;
@@ -761,10 +1022,19 @@ class Player extends Ball {
 	fireWeapon() {
 		this.weapons[this.weaponIdx].fire();
 	}
+	updateWeaponCD(){
+		for(var i=0;i<this.weapons.length;i++){
+			this.weapons[i].fireCD--;
+			if(this.weapons[i].fireCD<0){
+				this.weapons[i].fireCD=0;
+			}
+		}
+	}
 	step(){
 		if(this.health<0){
 			this.health=0;
 		}
+		this.updateWeaponCD();
 		this.position.x+=this.velocity.x;
 		this.position.y+=this.velocity.y;
 		for(var i=0;i<this.stage.actors.length;i++){
@@ -898,7 +1168,7 @@ class Player extends Ball {
 				+(this.aim_target.y-y1)*(this.aim_target.y-y1)))+x1;
 			var y2=(40*(this.aim_target.y-y1)/Math.sqrt((this.aim_target.x-x1)*(this.aim_target.x-x1)
 				+(this.aim_target.y-y1)*(this.aim_target.y-y1)))+y1;
-			context.lineWidth=4;
+			context.lineWidth=5;
 			context.beginPath();
 			context.moveTo(Math.round(x1), Math.round(y1));
 			context.lineTo(Math.round(x2), Math.round(y2));
@@ -927,15 +1197,21 @@ class Player extends Ball {
 			context.stroke();
 		}
 		if(this.weapons[this.weaponIdx].type=='rpg'){
-			var x2=(50*(this.aim_target.x-x1)/Math.sqrt((this.aim_target.x-x1)*(this.aim_target.x-x1)
+			var x2=(45*(this.aim_target.x-x1)/Math.sqrt((this.aim_target.x-x1)*(this.aim_target.x-x1)
 				+(this.aim_target.y-y1)*(this.aim_target.y-y1)))+x1;
-			var y2=(50*(this.aim_target.y-y1)/Math.sqrt((this.aim_target.x-x1)*(this.aim_target.x-x1)
+			var y2=(45*(this.aim_target.y-y1)/Math.sqrt((this.aim_target.x-x1)*(this.aim_target.x-x1)
+				+(this.aim_target.y-y1)*(this.aim_target.y-y1)))+y1;
+			var x3=((x1-this.aim_target.x)*this.radius/Math.sqrt((this.aim_target.x-x1)*(this.aim_target.x-x1)
+				+(this.aim_target.y-y1)*(this.aim_target.y-y1)))+x1;
+			var y3=((y1-this.aim_target.y)*this.radius/Math.sqrt((this.aim_target.x-x1)*(this.aim_target.x-x1)
 				+(this.aim_target.y-y1)*(this.aim_target.y-y1)))+y1;
 			context.lineWidth = 8;
 			context.beginPath();
-			context.moveTo(Math.round(x1), Math.round(y1));
+			context.moveTo(Math.round(x3), Math.round(y3));
 			context.lineTo(Math.round(x2), Math.round(y2));
+			context.strokeStyle='#1b6309';
 			context.stroke();
+			context.strokeStyle='#000000';
 		}
 	}
 }

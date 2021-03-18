@@ -5,6 +5,7 @@ var credentials={ "username": "", "password":"" };
 var cur_user = null;
 var cur_user_psw = null;
 var game_difficulity = null;
+var mouseDown=false;
 function setupGame(){
 	stage=new Stage(document.getElementById('stage'));
 
@@ -13,6 +14,7 @@ function setupGame(){
         document.addEventListener('keyup', releaseKey);
         document.getElementById('stage').addEventListener('mousemove', moveMouse);
         document.getElementById('stage').addEventListener('mousedown', mouseClick);
+        document.getElementById('stage').addEventListener('mouseup', mouseUp);
         
     
 }
@@ -47,7 +49,7 @@ function restartGame(){
 }
 function pressKey(event){
 	var key = event.key;
-        if(stage.player.health>0){
+        if(stage.player.health>0&&!stage.checkWon()){
                 if (key=='r') {
                         stage.player.switchWeapon();
                 }
@@ -70,7 +72,7 @@ function pressKey(event){
 }
 function releaseKey(event) {
         var key = event.key;
-        if(stage.player.health>0){
+        if(stage.player.health>0&&!stage.checkWon()){
                 if (key=='a'||key=='d') {
                         stage.player.setVelocityX(0);
                 }
@@ -82,16 +84,24 @@ function releaseKey(event) {
 function moveMouse(event){
         var x = event.offsetX;
         var y = event.offsetY;
-        if(stage.player.health>0){
+        if(stage.player.health>0&&!stage.checkWon()){
                 stage.player.aim(new Pair(x, y));
         }
 }
 function mouseClick() {
-        if(stage.player.health>0){
+        if(stage.player.health>0&&!stage.checkWon()){
+                mouseDown=true;
                 stage.player.fireWeapon();
+                setTimeout(function() {
+                        if(mouseDown&&stage.player.weapons[stage.player.weaponIdx].type=='rifle') {
+                                mouseClick();
+                        }
+                }, 10);
         }
 }
-
+function mouseUp(){
+        mouseDown=false;
+}
 
 function login(){
         $("#login_err").html("")

@@ -106,8 +106,8 @@ function mouseUp(){
 function login(){
         $("#login_err").html("")
 	credentials =  { 
-		"username": $("#username").val(), 
-		"password": $("#password").val() 
+		"username": $("#username_login").val(), 
+		"password": $("#password_login").val() 
 	};
         if ( credentials["username"] == "" || credentials["password"] == ""){
                 $("#login_err").html("Username and password can not be empty");
@@ -179,7 +179,7 @@ function update_profile(){
 
 
         }).fail(function(err){
-                if (err.status == "402"){
+                if (err.status == "400"){
                         $("#pswerr_pro").html("Your two password are not the same");
                 }
 
@@ -214,6 +214,10 @@ function register(){
                 dataType:"json"
         }).done(function(data, text_status, jqXHR){
                 console.log(jqXHR.status+" "+text_status+JSON.stringify(data));
+                console.log(credentials["username"]);
+                console.log(credentials["psw"]);
+                $("#username_login").val(credentials["username"]);
+                $("#password_login").val(credentials["psw"]);
         	$("#ui_login").show();
         	$("#ui_register").hide();
         }).fail(function(err){

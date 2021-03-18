@@ -18,8 +18,8 @@
 		<h1>2D fortnite Game</h1>
 		<div id="ui_login">
 			<div>
-				<input type="text" id="username" placeholder="User Name" />
-				<input type="password" id="password" placeholder="Password" />
+				<input type="text" id="username_login" placeholder="User Name" value=""/>
+				<input type="password" id="password_login" placeholder="Password" value=""/>
 				<input type="submit" id="loginSubmit" value="Login">
 				<input type="submit" id="registerSubmit" value="Register">
 				<div id='login_err'></div>
@@ -67,7 +67,8 @@
 		</div>
 		<div id="ui_profile">
 		<form id="myform2" action="javascript:update_profile();">
-			<br>
+			<div id="update_msg"></div>
+			<div id="emptyerr_pro"></div>
 			<span>Your Username: </span><span id='cur_user'></span>
 			<br><br>
 			<label for="psw_profile"><b>Password</b></label>
@@ -88,8 +89,7 @@
 			<input type="submit" id="update" value="update">
 			<input type="submit" class="resume" value="resume game">
 			<br>
-			<span id="update_msg"></span>
-			<span id="emptyerr_pro"></span>
+
 		</form>
 		<input type="submit" id="delete" value="DELETE ACCOUNT">
 		</div>

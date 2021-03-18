@@ -6,50 +6,80 @@ var cur_user = null;
 var cur_user_psw = null;
 var game_difficulity = null;
 var mouseDown=false;
-function setupGame(){
-	stage=new Stage(document.getElementById('stage'));
+var paused=false;
 
+function setup(){
+        var canvas=document.getElementById('setup');
+        var context=canvas.getContext('2d');
+	context.clearRect(0, 0, canvas.width, canvas.height);
+	context.fillStyle='rgba(140, 225, 150, 1)';
+	context.fillRect(0, 0, canvas.width, canvas.height);
+        context.fillStyle = 'rgba(0,0,0,1)';
+	context.font='bold 30px Arial';
+	context.fillText('Welcome To', 500, 100);
+        context.fillText('Battlefield!', 500, 140);
+        context.font='bold 20px Arial';
+        context.fillText('Please choose your game settings.', 500, 200);
+}
+
+function setupGame(){
+        $("#ui_setup").hide();
+        $("#ui_play").show();
+        $("#ui_play_restart").hide();
+        credentials =  { 
+                "difficulty": $("#difficulty").val(),
+                "enemies": $("#enemies").val(),
+		"obstacles": $("#obstacles").val()
+	};
+	stage=new Stage(document.getElementById('stage'), credentials["difficulty"], credentials["enemies"], credentials["obstacles"]);
 	// https://javascript.info/keyboard-events
 	document.addEventListener('keydown', pressKey);
         document.addEventListener('keyup', releaseKey);
         document.getElementById('stage').addEventListener('mousemove', moveMouse);
         document.getElementById('stage').addEventListener('mousedown', mouseClick);
         document.getElementById('stage').addEventListener('mouseup', mouseUp);
-        
-    
+        startGame();
 }
 function startGame(){
+        paused=false;
 	interval=setInterval(function(){ stage.step(); stage.draw(); },20);
 }
 function pauseGame(){
 	clearInterval(interval);
 	interval=null;
+        paused=true;
 }
 function resumeGame(){
-        $("#ui_login").hide();
-        $("#ui_navigation").show();
-        $("#ui_play").show();
-        $("#ui_register").hide();
-        $("#ui_instruction").hide();
-        $("#ui_profile").hide();
-        startGame();
+        if(paused){
+                $("#ui_login").hide();
+                $("#ui_navigation").show();
+                $("#ui_register").hide();
+                $("#ui_instruction").hide();
+                $("#ui_profile").hide();
+                if(stage==null){
+                        $("#ui_setup").show();
+                }else{
+                        $("#ui_play").show();
+                        paused=false;
+                        startGame();
+                }
+        }  
 }
 function restartGame(){
         clearInterval(interval);
 	interval=null;
         stage=null;
-        stage=new Stage(document.getElementById('stage'));
-        interval=setInterval(function(){ stage.step(); stage.draw(); },20);
         $("#ui_login").hide();
         $("#ui_navigation").show();
-        $("#ui_play").show();
+        $('#ui_setup').show();
+        $("#ui_play").hide();
         $("#ui_register").hide();
         $("#ui_instruction").hide();
         $("#ui_profile").hide();
 }
 function pressKey(event){
 	var key = event.key;
-        if(stage.player.health>0&&!stage.checkWon()){
+        if(stage&&stage.player.health>0&&!stage.checkWon()){
                 if (key=='r') {
                         stage.player.switchWeapon();
                 }
@@ -72,7 +102,7 @@ function pressKey(event){
 }
 function releaseKey(event) {
         var key = event.key;
-        if(stage.player.health>0&&!stage.checkWon()){
+        if(stage&&stage.player.health>0&&!stage.checkWon()){
                 if (key=='a'||key=='d') {
                         stage.player.setVelocityX(0);
                 }
@@ -84,12 +114,12 @@ function releaseKey(event) {
 function moveMouse(event){
         var x = event.offsetX;
         var y = event.offsetY;
-        if(stage.player.health>0&&!stage.checkWon()){
+        if(stage&&stage.player.health>0&&!stage.checkWon()){
                 stage.player.aim(new Pair(x, y));
         }
 }
 function mouseClick() {
-        if(stage.player.health>0&&!stage.checkWon()){
+        if(stage&&stage.player.health>0&&!stage.checkWon()){
                 mouseDown=true;
                 stage.player.fireWeapon();
                 setTimeout(function() {
@@ -125,7 +155,7 @@ function login(){
                 console.log(jqXHR.status+" "+text_status+JSON.stringify(data));
                 console.log(JSON.stringify(data));  
         	$("#ui_login").hide();
-        	$("#ui_play").show();
+                $("#ui_setup").show();
         	$("#ui_navigation").show();
                 cur_user = data['user'];
                 cur_user_psw = data['password'];
@@ -134,8 +164,7 @@ function login(){
                 $("#cur_user").html(cur_user);
                 $("#psw_profile").val(cur_user_psw);
                 $("#pswrepeat_profile").val(cur_user_psw);
-		setupGame();
-		startGame();
+                setup();
         }).fail(function(err){
                 $("#login_err").html("");
                 if (err.status == "409"){
@@ -225,6 +254,7 @@ function register(){
                         $("#psw_err").html("Your two password are not the same");
                         $('#psw-repeat').val("");
                 }else if (err.status == "409"){
+                        console.log("yoyoyo");
                         $("#usrname_err").html("username already been used");
                         $("#regname").val("");
                 }
@@ -262,6 +292,7 @@ function logout(){
                 console.log(jqXHR.status+" "+text_status+JSON.stringify(data));
         	$("#ui_login").show();
         	$("#ui_register").hide();
+                $("#ui_setup").hide();
                 $("#ui_play").hide();
                 $("#ui_navigation").hide();
                 $("#ui_instruction").hide();
@@ -288,6 +319,7 @@ function instruction(){
                 console.log(jqXHR.status+" "+text_status+JSON.stringify(data));
         	$("#ui_login").hide();
         	$("#ui_register").hide();
+                $("#ui_setup").hide();
                 $("#ui_play").hide();
                 $("#ui_instruction").show();
                 $("#ui_profile").hide();
@@ -310,6 +342,7 @@ function profile(){
                 console.log(jqXHR.status+" "+text_status+JSON.stringify(data));
                 $("#ui_login").hide();
                 $("#ui_navigation").show();
+                $("#ui_setup").hide();
                 $("#ui_play").hide();
                 $("#ui_register").hide();
                 $("#ui_instruction").hide();
@@ -358,7 +391,7 @@ function clear_nav_active(){
         $("#logout").css("color", "white");
         $("#restart").css("color", "white");
         $("#profile").css("color", "white");
-        $("#play").css("color", "white");
+        $("#resume").css("color", "white");
         $("#instruction").css("color", "white");
         return;
 
@@ -367,31 +400,31 @@ function clear_nav_active(){
 $(function(){
         // Setup all events here and display the appropriate UI
         $("#play").hover(
-        function(){ $(this).css("background-color", "darkgrey");}, 
-        function(){ $(this).css("background-color", "#323232");});
-        $("#logout").hover(
-        function(){ $(this).css("background-color", "darkgrey");}, 
+                function(){ $(this).css("background-color", "darkgrey");}, 
                 function(){ $(this).css("background-color", "#323232");});
-        $("#instruction").hover(
-        function(){ $(this).css("background-color", "darkgrey");}, 
-        function(){ $(this).css("background-color", "#323232");});
-        $("#restart").hover(
-        function(){ $(this).css("background-color", "darkgrey");}, 
-        function(){ $(this).css("background-color", "#323232");});
-        $("#profile").hover(
-        function(){ $(this).css("background-color", "darkgrey");}, 
-        function(){ $(this).css("background-color", "#323232");});
-
-        $("#loginSubmit").on('click',function(){
-                clear_nav_active(); 
-                $("#play").css("color", "green");
-                login(); });
+                $("#logout").hover(
+                function(){ $(this).css("background-color", "darkgrey");}, 
+                        function(){ $(this).css("background-color", "#323232");});
+                $("#instruction").hover(
+                function(){ $(this).css("background-color", "darkgrey");}, 
+                function(){ $(this).css("background-color", "#323232");});
+                $("#restart").hover(
+                function(){ $(this).css("background-color", "darkgrey");}, 
+                function(){ $(this).css("background-color", "#323232");});
+                $("#profile").hover(
+                function(){ $(this).css("background-color", "darkgrey");}, 
+                function(){ $(this).css("background-color", "#323232");});
+        
+                $("#loginSubmit").on('click',function(){
+                        clear_nav_active(); 
+                        $("#play").css("color", "green");
+                        login(); });
         $("#delete").on('click',function(){ delete_account(); });
         $("#registerSubmit").on('click',function(){ Nav_register(); });
-        $("#play").on('click',function(){ 
+        $("#resume").on('click',function(){ 
                 clear_nav_active();
                 $(this).css("color", "green");
-                restartGame();
+                resumeGame();
                  });
         $("#logout").on('click',function(){ 
                 clear_nav_active();
@@ -414,14 +447,13 @@ $(function(){
                 profile(); 
                 clear_nav_active();
                 $(this).css("color", "green");});
-
-        $(".resume").on('click',function(){ resumeGame(); });
+        $(".restart").on('click',function(){ restartGame(); });
         $("#ui_login").show();
         $("#ui_navigation").hide();
+        $("#ui_setup").hide();
         $("#ui_play").hide();
         $("#ui_register").hide();
         $("#ui_instruction").hide();
         $("#ui_profile").hide();
-
 });
 

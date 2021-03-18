@@ -4,16 +4,23 @@ function rand(n){ return Math.random()*n; }
 
 
 class Stage {
-	constructor(canvas){
+	constructor(canvas, difficulty, enemNum, obstacles){
 		this.canvas = canvas;
-	
 		this.actors=[]; // all actors on this stage (monsters, player, boxes, ...)
 		this.player=null; // a special actor, the player
-	
 		// the logical width and height of the stage (display area)
 		this.width=canvas.width;
 		this.height=canvas.height;
 		this.difficulty='easy';
+		var enemCount=50;
+		var obstaclesCount=250;
+		if(difficulty=='meidum') this.difficulty='meidum';
+		if(difficulty=='hard') this.difficulty='hard';
+		if(enemNum=='meidum') enemCount=100;
+		if(enemNum=='many') enemCount=200;
+		if(obstacles=='meidum') obstaclesCount=500;
+		if(obstacles=='many') obstaclesCount=1000;
+
 		// the actual width and height of the map
 		this.mapWidth = 10000;
 		this.mapHeight = 10000;
@@ -28,9 +35,8 @@ class Stage {
 		this.addPlayer(new Player(this, position, velocity, colour, radius));
 		// the number of total enemies
 		this.enemNum=0;
-		// Add in 500 obstacles
-		var total=500;
-		while(total>0){
+		// Add in obstacles
+		while(obstaclesCount>0){
 			var x=Math.floor((Math.random()*this.mapWidth)); 
 			var y=Math.floor((Math.random()*this.mapHeight));
 			var width=100+randint(100);
@@ -38,18 +44,17 @@ class Stage {
 			var result=this.checkOverlap(x,y,width,height);
 			if(!result){
 				var velocity = new Pair(0, 0);
-				var red=195, green=102, blue=56;
 				var radius = 15;
-				var alpha = 1;
-				var colour= 'rgba('+red+','+green+','+blue+','+alpha+')';
+				var colour='rgba(195,102,56,1)';
 				var position = new Pair(x,y);
 				this.addActor(new Obstacle(this, position, velocity, colour, radius, width, height));
-				total--;
+				obstaclesCount--;
 			}
 		}
-		// Add in 50 enemies 
-		total=20;
-		while(total>0){
+		// Add in enemies 
+		var level1=Math.round(enemCount*0.5);
+		var level2=Math.round(enemCount*0.3);
+		while(level1>0){
 			var x=Math.floor((Math.random()*this.mapWidth)); 
 			var y=Math.floor((Math.random()*this.mapHeight)); 
 			if(this.getActor(x,y)===null){
@@ -61,12 +66,12 @@ class Stage {
 					var position = new Pair(x,y);
 					var type = 'level1';
 					this.addActor(new Enemy(this, position, velocity, colour, radius, type));
-					total--;
+					level1--;
+					enemCount--;
 				}
 			}
 		}
-		total=20;
-		while(total>0){
+		while(level2>0){
 			var x=Math.floor((Math.random()*this.mapWidth)); 
 			var y=Math.floor((Math.random()*this.mapHeight)); 
 			if(this.getActor(x,y)===null){
@@ -78,12 +83,12 @@ class Stage {
 					var position = new Pair(x,y);
 					var type = 'level2';
 					this.addActor(new Enemy(this, position, velocity, colour, radius, type));
-					total--;
+					level2--;
+					enemCount--;
 				}
 			}
 		}
-		total=10;
-		while(total>0){
+		while(enemCount>0){
 			var x=Math.floor((Math.random()*this.mapWidth)); 
 			var y=Math.floor((Math.random()*this.mapHeight)); 
 			if(this.getActor(x,y)===null){
@@ -95,7 +100,7 @@ class Stage {
 					var position = new Pair(x,y);
 					var type = 'level3';
 					this.addActor(new Enemy(this, position, velocity, colour, radius, type));
-					total--;
+					enemCount--;
 				}
 			}
 		}
@@ -240,11 +245,14 @@ class Stage {
 		context.strokeRect(995, 120, 150, 100);
 		if(this.checkWon()){
 			context.font = 'bold 30px Arial';
-			context.fillText('You Won!', 500, 380);
+			context.fillText('You Won!', 520, 350);
+			$("#ui_play_restart").show();
 		}
 		if(this.player.health==0){
 			context.font = 'bold 30px Arial';
-			context.fillText('You Died!', 500, 380);
+			context.fillText('You Died!', 520, 350);
+			$("#ui_play_restart").show();
+
 		}
 	}
 	// return the first actor at coordinates (x,y) return null if there is no such actor
@@ -312,6 +320,7 @@ class Obstacle extends Ball {
 		this.width=width;
 		this.height=height;
 		this.health=100;
+		if(this.stage.difficulty=='easy') this.health=50;
 		this.deathCD=0;
 		this.beingHit=false;
 		this.addPoints=false;
@@ -564,15 +573,22 @@ class Enemy extends Ball {
 		super(stage, position, velocity, colour, radius);
 		this.type=type;
 		this.health=50;
+		if(this.stage.difficulty=='hard') this.health=80;
 		this.weapon='fist';
 		if(this.type=='level2') this.weapon='rifle';
-		if(this.type=='level3') {this.health=200; this.weapon='rpg';}
-	
+		if(this.type=='level3') {
+			this.health=200; 
+			if(this.stage.difficulty=='hard') this.health=300;
+			this.weapon='rpg';
+		}
 		this.aim_target = new Pair(0, 0);  // Aim position which indicates the map position 
 										   // where the aim crosshair is pointed at. 
 		this.beingHit = false;
 		this.fireCD=0;
 		this.deathCD=0;
+		this.detectRange=400;
+		if(this.stage.difficulty=='meidum') this.detectRange=800;
+		if(this.stage.difficulty=='hard') this.detectRange=1200;
 	}
 	aim(target){
 		var x=this.position.x;
@@ -597,6 +613,7 @@ class Enemy extends Ball {
 					}
 				}
 				this.fireCD=50+randint(10);
+				if(this.stage.difficulty=='hard') this.fireCD=20+randint(10);
 				return;
 			}
 			var targetX = this.aim_target.x;
@@ -616,6 +633,7 @@ class Enemy extends Ball {
 				var type='level2';
 				this.stage.addActor(new Bullet(this.stage, position, velocity, colour, radius, type, fireFrom));
 				this.fireCD=30+randint(10);
+				if(this.stage.difficulty=='hard') this.fireCD=10+randint(10);
 				return;
 			}
 			if(this.weapon=='rpg'){
@@ -633,6 +651,7 @@ class Enemy extends Ball {
 				var type='level3';
 				this.stage.addActor(new Bullet(this.stage, position, velocity, colour, radius, type, fireFrom));
 				this.fireCD=60+randint(10);
+				if(this.stage.difficulty=='hard') this.fireCD=30+randint(10);
 				return;
 			}
 		}
@@ -694,7 +713,7 @@ class Enemy extends Ball {
 			if(this.fireCD<0){
 				this.fireCD=0;
 			}
-			if(dist<=400&&this.stage.player.health>0){	// player within the enemy's dectect range
+			if(dist<=this.detectRange&&this.stage.player.health>0){	// player within the enemy's detect range
 				// aim to the player
 				this.aim(this.stage.player.position);
 				// move towards the player
@@ -864,9 +883,27 @@ class Weapon {
 	}
 	addAmmo(){
 		if(this.type=='fist') return;
-		if(this.type=='pistol') this.ammo+=20;
-		if(this.type=='rifle') this.ammo+=40;
-		if(this.type=='rpg') this.ammo+=5;
+		if(this.type=='pistol'){
+			if(this.player.stage.difficulty=='easy'){
+				this.ammo+=20;
+			}else{
+				this.ammo+=10;
+			}
+		} 
+		if(this.type=='rifle'){
+			if(this.player.stage.difficulty=='easy'){
+				this.ammo+=40;
+			}else{
+				this.ammo+=20;
+			}
+		}
+		if(this.type=='rpg'){
+			if(this.player.stage.difficulty=='easy'){
+				this.ammo+=5;
+			}else{
+				this.ammo++;
+			}
+		}
 	}
 	fire(){
 		var x1=this.player.position.x;
@@ -906,10 +943,10 @@ class Weapon {
 				var x2=(40*(targetX-x1)/Math.sqrt((targetX-x1)*(targetX-x1)+(targetY-y1)*(targetY-y1)))+x1;
 				var y2=(40*(targetY-y1)/Math.sqrt((targetX-x1)*(targetX-x1)+(targetY-y1)*(targetY-y1)))+y1;
 				var position = new Pair(x2,y2);
-				var x3=12*(targetX-position.x)/Math.sqrt((targetX-position.x)*(targetX-position.x)
-						+(targetY-position.y)*(targetY-position.y));
-				var y3=12*(targetY-position.y)/Math.sqrt((targetX-position.x)*(targetX-position.x)
-						+(targetY-position.y)*(targetY-position.y));
+				var x3=12*(targetX-x1)/Math.sqrt((targetX-x1)*(targetX-x1)
+						+(targetY-y1)*(targetY-y1));
+				var y3=12*(targetY-y1)/Math.sqrt((targetX-x1)*(targetX-x1)
+						+(targetY-y1)*(targetY-y1));
 				var velocity=new Pair(x3, y3);
 				var colour='rgba(221,60,12,1)';
 				var radius=5;
@@ -923,10 +960,10 @@ class Weapon {
 				var x2=(45*(targetX-x1)/Math.sqrt((targetX-x1)*(targetX-x1)+(targetY-y1)*(targetY-y1)))+x1;
 				var y2=(45*(targetY-y1)/Math.sqrt((targetX-x1)*(targetX-x1)+(targetY-y1)*(targetY-y1)))+y1;
 				var position = new Pair(x2,y2);
-				var x3=14*(targetX-position.x)/Math.sqrt((targetX-position.x)*(targetX-position.x)
-					+(targetY-position.y)*(targetY-position.y));
-				var y3=14*(targetY-position.y)/Math.sqrt((targetX-position.x)*(targetX-position.x)
-					+(targetY-position.y)*(targetY-position.y));
+				var x3=14*(targetX-x1)/Math.sqrt((targetX-x1)*(targetX-x1)
+					+(targetY-y1)*(targetY-y1));
+				var y3=14*(targetY-y1)/Math.sqrt((targetX-x1)*(targetX-x1)
+					+(targetY-y1)*(targetY-y1));
 				var velocity=new Pair(x3, y3);
 				var colour='rgba(221,60,12,1)';
 				var radius=5;
@@ -941,10 +978,10 @@ class Weapon {
 				var x2=(45*(targetX-x1)/Math.sqrt((targetX-x1)*(targetX-x1)+(targetY-y1)*(targetY-y1)))+x1;
 				var y2=(45*(targetY-y1)/Math.sqrt((targetX-x1)*(targetX-x1)+(targetY-y1)*(targetY-y1)))+y1;
 				var position = new Pair(x2,y2);
-				var x3=10*(targetX-position.x)/Math.sqrt((targetX-position.x)*(targetX-position.x)
-					+(targetY-position.y)*(targetY-position.y));
-				var y3=10*(targetY-position.y)/Math.sqrt((targetX-position.x)*(targetX-position.x)
-					+(targetY-position.y)*(targetY-position.y));
+				var x3=10*(targetX-x1)/Math.sqrt((targetX-x1)*(targetX-x1)
+					+(targetY-y1)*(targetY-y1));
+				var y3=10*(targetY-y1)/Math.sqrt((targetX-x1)*(targetX-x1)
+					+(targetY-y1)*(targetY-y1));
 				var velocity=new Pair(x3, y3);
 				var colour='rgba(221,60,12,1)';
 				var radius=8;
@@ -965,9 +1002,11 @@ class Player extends Ball {
 		this.beingHit = false;
 		this.weapons=[];
 		this.addWeapon('fist');
-		this.addWeapon('pistol');
-		this.addWeapon('rifle');
-		this.addWeapon('rpg');
+		if(this.stage.difficulty=='easy'){
+			this.addWeapon('pistol');
+			this.addWeapon('rifle');
+			this.addWeapon('rpg');
+		}
 		this.weaponIdx=0;
 		this.points=0;
 		this.deathCD=0;

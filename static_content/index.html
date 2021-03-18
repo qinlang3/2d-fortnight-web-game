@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>f0rt9it32d</title>
+		<title>Battlefield</title>
 		<meta charset="utf-8">
 		<meta HTTP-EQUIV="EXPIRES" CONTENT="-1">
 		<script src="jquery-3.5.1.min.js"></script>
@@ -15,7 +15,7 @@
 
 	</head>
 	<body>
-		<h1>2D fortnite Game</h1>
+		<h1>Battlefield</h1>
 		<div id="ui_login">
 			<div>
 				<input type="text" id="username_login" placeholder="User Name" value=""/>
@@ -58,11 +58,11 @@
 		</div>
 		<div id="ui_navigation">
 		<ul>
-			<li><a class="active_nav" href="#" id="play">play</a></li>
-			<li><a  href="#" id="restart">restart</a></li>
-			<li><a href="#" id="logout">logout</a></li>
-			<li><a href="#" id="instruction">instruction</a></li>
-			<li><a href="#" id="profile">profile</a></li>
+			<li><a class="active_nav" href="#" id="resume">Resume</a></li>
+			<li><a  href="#" id="restart">Restart</a></li>
+			<li><a href="#" id="instruction">Instruction</a></li>
+			<li><a href="#" id="profile">Profile</a></li>
+			<li><a href="#" id="logout">Logout</a></li>
 		</ul>
 		</div>
 		<div id="ui_profile">
@@ -87,15 +87,41 @@
 			  <option value="advanced", id="skill3", name="skill_pro" value="advanced">advanced</option>
 			</select>
 			<input type="submit" id="update" value="update">
-			<input type="submit" class="resume" value="resume game">
 			<br>
-
 		</form>
 		<input type="submit" id="delete" value="DELETE ACCOUNT">
 		</div>
 		<br>
+		<div id="ui_setup">
+			<form id="myform3" action="javascript:setupGame();">
+				<label for="difficulty">Game Difficulty:</label>
+				<select name="difficulty" id="difficulty">
+				  <option value="easy">Easy</option>
+				  <option value="meidum">Meidum</option>
+				  <option value="hard">Hard</option>
+				</select>
+				<br><br>
+				<label for="enemies">Number of Enemies:</label>
+				<select name="enemies" id="enemies">
+				  <option value="few">Few</option>
+				  <option value="meidum">Meidum</option>
+				  <option value="many">Many</option>
+				</select>
+				<br><br>
+				<label for="obstacles">Number of Obstacles:</label>
+				<select name="obstacles" id="obstacles">
+				  <option value="few">Few</option>
+				  <option value="meidum">Meidum</option>
+				  <option value="many">Many</option>
+				</select>
+				<br><br>
+				<input type="submit" id="start" value="Start Game">
+			</form>
+			<center>
+				<canvas id="setup" width="1200" height="700" style="border:1px solid black;"> </canvas>
+			</center>
+		</div>
 		<div id="ui_play">
-
 			<center>
 				<canvas id="stage" width="1200" height="700" style="border:1px solid black;"> </canvas>
 				<div style="display:none;">
@@ -105,14 +131,64 @@
 					<img id="rpg" src="sources/rpg.png" width="100" height="100">
 					<img id="fist" src="sources/fist.png" width="100" height="100">
 				</div>
+				<div id="ui_play_restart"><input type="submit" class="restart" value="Restart"> </div>
 			</center>
 		</div>
 		<div id="ui_instruction">
-			<h2>Move with WASD</h2>
-			<h2>Boxes can be destoryed and drop items, move next to them and press F to pick up</h2>
-			<h2>Aim with your mouse</h2>
-			<h2>Mouse click fires</h2>
-			<h2>Press R to switch between weapons</h2>
+			<table id="instruction_table">
+				<tr><th><h2>Up</h2></th><td><h2>W</h2></td></tr>
+				<tr><th><h2>Down</h2></th><td><h2>S</h2></td></tr>
+				<tr><th><h2>Left</h2></th><td><h2>A</h2></td></tr>
+				<tr><th><h2>Right</h2></th><td><h2>D</h2></td></tr>
+				<tr><th><h2>Pick up</h2></th><td><h2>F</h2></td></tr>
+				<tr><th><h2>Switch Weapon</h2></th><td><h2>R</h2></td></tr>
+				<tr><th><h2>Fire/Attack</h2></th><td><h2>Left Click</h2></td></tr>
+				<tr><th><h2>Auto Fire(Rifle)</h2></th><td><h2>Holding Left Click</h2></td></tr>
+			</table>
+			<div id="info">
+				<h2>Game Difficulty:</h2>
+				<h2>Easy: 
+				<ul>
+					<li>
+						Player starts with all the weapons equipped
+					</li>
+					<li>
+						Obstacles are easy to destroy
+					</li>
+					<li>
+						Large amount of ammunition of supply
+					</li>
+				</ul></h2>
+				<h2>Meidum: 
+				<ul>
+					<li>
+						Player starts with bare hand
+					</li>
+					<li>
+						Obstacles become tougher
+					</li>
+					<li>
+						Less amount of ammunition of supply
+					</li>
+				</ul></h2>
+				<h2>Hard: 
+					<ul>
+						<li>
+							Touher AI
+						</li>
+						<li>
+							Enemies have more health
+						</li>
+						<li>
+							Enemies attacking more quickly
+						</li>
+					</ul></h2>
+				<h2>Aim with your mouse</h2>
+				<h2>Obstacles can be destroyed and have chance to drop items, go near them to pick up</h2>
+				<h2>You can also attack enemies/obstacles with your hand</h2>
+				<h2>Kill all your enemies and survive!</h2>
+			</div>
+			
 		</div>
 	</body>
 </html>

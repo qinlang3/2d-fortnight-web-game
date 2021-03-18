@@ -2,25 +2,33 @@
     cursor: crosshair;
 }
 
-body{
-    font-family: sans-serif;   
-    background: url(pic1.jpg);
-     background-size: cover;
+h1{
+    text-align:center;
 }
 
+body{
+    font-family: sans-serif;   
+    background: url(/sources/bg.png);
+    background-size: cover;
+}
 
 #ui_login{
     width: 350px;
     height: 420px;
-    /* background:oldlace; */
-    background: #323232;
+    background: #c4e4cb;
     top: 50%;
     left: 50%;
     position: absolute;
     transform: translate(-50%,-50%);
     box-sizing: border-box;
     padding: 70px 30px;
-    color: white;
+    color: red;
+}
+#myform3{
+    position:absolute;
+    width:500px;
+    left: 43%;
+    top: 60%;
 }
 #ui_profile{
     width: 600px;
@@ -47,7 +55,21 @@ body{
     padding: 70px 30px;
     color: white;
 }
-
+#ui_play_restart{
+    position: absolute;
+    left: 45%;
+    top: 75%;
+}
+#ui_setup #start, input[value="Restart"]{
+    font-size: 14px;
+    color: white;
+    padding: 15px;
+    cursor: pointer;
+    border: none;
+    background-color:rgb(113, 201, 193);
+    width: 150px;
+    margin-bottom: 2px;
+}
 
 #ui_login input, #ui_register input, #ui_profile input{
     width: 100%;
@@ -117,12 +139,12 @@ body{
     background: orange;
     color: #000;
 }
-li {
+#ui_navigation li {
     float: left;
    
   }
 
-ul {
+#ui_navigation ul {
     list-style-type: none;
     padding: 0; 
     overflow: hidden;
@@ -131,7 +153,7 @@ ul {
   
   }
   
-  li a {
+#ui_navigation li a {
      text-decoration: none;
     display: block;
     color: white;
@@ -149,3 +171,25 @@ ul {
   #Back_login{
       color: black;
   }
+
+#ui_instruction{
+    display: flex;
+}
+th, td, tr{
+    border: 2px solid black;
+    padding: 2px;
+}
+#instruction_table {
+    background-color: aquamarine;
+    margin-left:100px;
+    max-width: 200px;
+    border-collapse: collapse;
+}
+
+#info {
+    margin-left: 20px;
+}
+
+#info {
+    font-size: 12px;
+}

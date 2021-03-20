@@ -1,2 +1,2 @@
-# Github ID, Name
-qinlang3, Lang Qin
+# Github username, Name
+# qinlang3, Lang Qin

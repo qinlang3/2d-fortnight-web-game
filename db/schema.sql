@@ -1,7 +1,7 @@
 --- load with 
 --- psql "dbname='webdb' user='webdbuser' password='password' host='localhost'" -f schema.sql
-DROP TABLE ftduser CASCADE;
-DROP TABLE gamedata CASCADE;
+DROP TABLE IF EXISTS ftduser CASCADE;
+DROP TABLE IF EXISTS gamedata CASCADE;
 CREATE TABLE ftduser (
 	username VARCHAR(20) PRIMARY KEY,
 	password BYTEA NOT NULL,
@@ -19,5 +19,4 @@ CREATE TABLE  gamedata(
       FOREIGN KEY(username) 
 	  REFERENCES ftduser(username)
 );
-
 

@@ -1,85 +1,194 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
+		<title>Battlefield</title>
 		<meta charset="utf-8">
 		<meta HTTP-EQUIV="EXPIRES" CONTENT="-1">
-		<link rel="stylesheet" type="text/css" href="style.css" />
 		<script src="jquery-3.5.1.min.js"></script>
 		<script language="javascript" src="model.js" > </script>
 		<script language="javascript" src="controller.js" > </script>
-		<style>
+		<link rel="stylesheet" type="text/css" href="style.css" />
+		<!-- <style>
 			#ui_login { display:block; }
 			#ui_play { display:none; }
-		</style>
-		<title>f0rt9it32d</title>
+		</style> -->
+
 	</head>
-	<body bgcolor="ffffff">
-		<h1>f0rt9it32d</h1>
+	<body>
+		<h1>Battlefield</h1>
 		<div id="ui_login">
 			<div>
-				<input type="text" id="username" placeholder="User Name" />
-				<input type="password" id="password" placeholder="Password" />
+				<input type="text" id="username_login" placeholder="User Name" value=""/>
+				<input type="password" id="password_login" placeholder="Password" value=""/>
 				<input type="submit" id="loginSubmit" value="Login">
 				<input type="submit" id="registerSubmit" value="Register">
+				<div id='login_err'></div>
 			</div>
 		</div>
 		<div id="ui_register">
 			<div>
+				<form id="myform" action="javascript:register();">
 			    <label for="username"><b>Username</b></label>
-    			<input type="text" placeholder="Enter Username" name="username" id="regname" required>
-				<br><br>
+    			<input type="text" placeholder="Enter Username" name="username" id="regname" value="" required>
+				<span id="usrname_err"></span>
+				<!-- <br><br> -->
     			<label for="psw"><b>Password</b></label>
-    			<input type="password" placeholder="Enter Password" name="psw" id="psw" required>
-				<br><br>
+				<input type="password" name="psw" id="psw" minlength="6" pattern="(?=.*\d)(?=.*[A-Z]).{6,}"
+				title="Password should contain at least one capital letter and at least one number and the minimum length is 6" required/>
+				<!-- <br><br> -->
     			<label for="psw-repeat"><b>Repeat Password</b></label>
-    			<input type="password" placeholder="Repeat Password" name="psw-repeat" id="pswrepeat" required>
-				<br><br>
-
-				<input type="radio" id="skill1" name="skill_reg" value="easy">
-				<label for="skill1">Easy</label>
-				<input type="radio" id="skill2" name="skill_reg" value="intedermediate">
-				<label for="skill2">Intedermediate</label>
-				<input type="radio" id="skill3" name="skill_reg" value="advanced">
-				<label for="skill3">Advanced</label><br><br>
+				<input type="password" name="psw-repeat" id="psw-repeat" value="" minlength="6" pattern="(?=.*\d)(?=.*[A-Z]).{6,}"
+				title="Password should contain at least one capital letter and at least one number and the minimum length is 6" required/>
+				<span id="psw_err"></span>
+				<!-- <br><br> -->
+				<label for="birthday">Birthday:</label>
+				<input type="date" id="birthday" name="birthday" required>
+			<label for="Game_diff">Game level</label>
+			<select id="Game_diff">
+			  <option value="easy", id="skill1", name="skill_reg">easy</option>
+			  <option value="intedermediate", id="skill2", name="skill_reg">intedermediate</option>
+			  <option value="advanced", id="skill3", name="skill_reg">advanced</option>
+			</select>
+				<br><br><br>
+				<span id="empty_err"></span>
 				<input type="submit" id="register" value="Register">
+			</form>
+			<a href="#" id="Back_login" >go back to login </a>
 			</div>
 		</div>
 		<div id="ui_navigation">
-			<input type="submit" id="restart" value="restart">
-			<input type="submit" id="logout" value="logout">
-			<input type="submit" id="instruction" value="instruction">
-			<input type="submit" id="profile" value="profile">
+		<ul>
+			<li><a class="active_nav" href="#" id="resume">Resume</a></li>
+			<li><a  href="#" id="restart">Restart</a></li>
+			<li><a href="#" id="instruction">Instruction</a></li>
+			<li><a href="#" id="profile">Profile</a></li>
+			<li><a href="#" id="logout">Logout</a></li>
+		</ul>
 		</div>
 		<div id="ui_profile">
-			<p id='cur_user'></p>
+		<form id="myform2" action="javascript:update_profile();">
+			<div id="update_msg"></div>
+			<div id="emptyerr_pro"></div>
+			<span>Your Username: </span><span id='cur_user'></span>
+			<br><br>
 			<label for="psw_profile"><b>Password</b></label>
-			<input type="password" placeholder="Enter Password" name="psw11" id="psw_profile" value="" required>
+			<input type="password" placeholder="Enter Password" name="psw11" id="psw_profile" minlength="6" pattern="(?=.*\d)(?=.*[A-Z]).{6,}" value="" 
+			title="Password should contain at least one capital letter and at least one number and the minimum length is 6" required>
 			<br><br>
 			<label for="pswrepeat_profile"><b>Repeat Password</b></label>
-			<input type="password" placeholder="Repeat Password" name="psw-repeat" id="pswrepeat_profile" value="" required>
+			<input type="password" placeholder="Repeat Password" name="psw-repeat" id="pswrepeat_profile" minlength="6" pattern="(?=.*\d)(?=.*[A-Z]).{6,}" value="" 
+			title="Password should contain at least one capital letter and at least one number and the minimum length is 6" required>
+			<span id="pswerr_pro"></span>
 			<br><br>
-			<input type="radio" id="skill1" name="skill_pro" value="easy">
-			<label for="skill1">Easy</label>
-			<input type="radio" id="skill2" name="skill_pro" value="intedermediate">
-			<label for="skill2">Intedermediate</label>
-			<input type="radio" id="skill3" name="skill_pro" value="advanced">
-			<label for="skill3">Advanced</label><br><br>
+			<label for="Game_diff_profile">Game level</label>
+			<select id="Game_diff_profile">
+			  <option value="easy", id="skill1", name="skill_pro" value="easy">easy</option>
+			  <option value="intedermediate", id="skill2", name="skill_pro" value="intedermediate">intedermediate</option>
+			  <option value="advanced", id="skill3", name="skill_pro" value="advanced">advanced</option>
+			</select>
 			<input type="submit" id="update" value="update">
-			<input type="submit" class="resume" value="resume game">
+			<br>
+		</form>
+		<input type="submit" id="delete" value="DELETE ACCOUNT">
 		</div>
 		<br>
-		<div id="ui_play">
-
+		<div id="ui_setup">
+			<form id="myform3" action="javascript:setupGame();">
+				<label for="difficulty">Game Difficulty:</label>
+				<select name="difficulty" id="difficulty">
+				  <option value="easy">Easy</option>
+				  <option value="meidum">Meidum</option>
+				  <option value="hard">Hard</option>
+				</select>
+				<br><br>
+				<label for="enemies">Number of Enemies:</label>
+				<select name="enemies" id="enemies">
+				  <option value="few">Few</option>
+				  <option value="meidum">Meidum</option>
+				  <option value="many">Many</option>
+				</select>
+				<br><br>
+				<label for="obstacles">Number of Obstacles:</label>
+				<select name="obstacles" id="obstacles">
+				  <option value="few">Few</option>
+				  <option value="meidum">Meidum</option>
+				  <option value="many">Many</option>
+				</select>
+				<br><br>
+				<input type="submit" id="start" value="Start Game">
+			</form>
 			<center>
-				<canvas id="stage" width="800" height="800" style="border:1px solid black;"> </canvas>
+				<canvas id="setup" width="1200" height="700" style="border:1px solid black;"> </canvas>
+			</center>
+		</div>
+		<div id="ui_play">
+			<center>
+				<canvas id="stage" width="1200" height="700" style="border:1px solid black;"> </canvas>
+				<div style="display:none;">
+					<img id="ammo" src="sources/ammo.png" width="100" height="100">
+					<img id="pistol" src="sources/pistol.png" width="100" height="100">
+					<img id="rifle" src="sources/rifle.png" width="100" height="100">
+					<img id="rpg" src="sources/rpg.png" width="100" height="100">
+					<img id="fist" src="sources/fist.png" width="100" height="100">
+				</div>
+				<div id="ui_play_restart"><input type="submit" class="restart" value="Restart"> </div>
 			</center>
 		</div>
 		<div id="ui_instruction">
-			<p>Move with wasd</p>
-			<p>Boxes with restore amunition and health, move next to them and press e</p>
-			<p>Aim with your mouse</p>
-			<p>Mouse click fires</p>
-			<input type="submit" class="resume" value="resume game">
+			<table id="instruction_table">
+				<tr><th><h2>Up</h2></th><td><h2>W</h2></td></tr>
+				<tr><th><h2>Down</h2></th><td><h2>S</h2></td></tr>
+				<tr><th><h2>Left</h2></th><td><h2>A</h2></td></tr>
+				<tr><th><h2>Right</h2></th><td><h2>D</h2></td></tr>
+				<tr><th><h2>Pick up</h2></th><td><h2>F</h2></td></tr>
+				<tr><th><h2>Switch Weapon</h2></th><td><h2>R</h2></td></tr>
+				<tr><th><h2>Fire/Attack</h2></th><td><h2>Left Click</h2></td></tr>
+				<tr><th><h2>Auto Fire(Rifle)</h2></th><td><h2>Holding Left Click</h2></td></tr>
+			</table>
+			<div id="info">
+				<h2>Game Difficulty:</h2>
+				<h2>Easy: 
+				<ul>
+					<li>
+						Player starts with all the weapons equipped
+					</li>
+					<li>
+						Obstacles are easy to destroy
+					</li>
+					<li>
+						Large amount of ammunition of supply
+					</li>
+				</ul></h2>
+				<h2>Meidum: 
+				<ul>
+					<li>
+						Player starts with bare hand
+					</li>
+					<li>
+						Obstacles become tougher
+					</li>
+					<li>
+						Less amount of ammunition of supply
+					</li>
+				</ul></h2>
+				<h2>Hard: 
+					<ul>
+						<li>
+							Touher AI
+						</li>
+						<li>
+							Enemies have more health
+						</li>
+						<li>
+							Enemies attacking more quickly
+						</li>
+					</ul></h2>
+				<h2>Aim with your mouse</h2>
+				<h2>Obstacles can be destroyed and have chance to drop items, go near them to pick up</h2>
+				<h2>You can also attack enemies/obstacles with your hand</h2>
+				<h2>Kill all your enemies and survive!</h2>
+			</div>
+			
 		</div>
 	</body>
 </html>

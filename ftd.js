@@ -26,13 +26,6 @@ app.use(bodyParser.json());
 
 app.use('/',express.static('static_content')); 
 
-
-// Non authenticated route. Can visit this without credentials
-app.post('/api/test', function (req, res) {
-	res.status(200); 
-	res.json({"message":"got here"}); 
-});
-
 /** 
  * This is middleware to restrict access to subroutes of /api/auth/ 
  * To get past this middleware, all requests should be sent with appropriate
@@ -43,10 +36,9 @@ app.post('/api/test', function (req, res) {
 **/
 app.use('/api/auth', function (req, res,next) {
 	if (!req.headers.authorization) {
-		return res.status(403).json({ error: 'No credentials sent!' });
+		return res.status(401).json({ error: 'No credentials sent!' });
   	}
 	try {
-		// var credentialsString = Buffer.from(req.headers.authorization.split(" ")[1], 'base64').toString();
 		var m = /^Basic\s+(.*)$/.exec(req.headers.authorization);
 		var user_pass = Buffer.from(m[1], 'base64').toString();
 		m = /^(.*):(.*)$/.exec(user_pass); // probably should do better than this
@@ -54,57 +46,134 @@ app.use('/api/auth', function (req, res,next) {
 		var password = m[2];
 		console.log(username+" "+password);
 		let sql = 'SELECT * FROM ftduser WHERE username=$1 and password=sha512($2)';
-        	pool.query(sql, [username, password], (err, pgRes) => {
-  			if (err){
-                		res.status(403).json({ error: 'Not authorized'});
-			} else if(pgRes.rowCount == 1){
-				res.cur_user = username;
-				res.psw = password;
-				next(); 
-			} else {
-                		res.status(403).json({ error: 'Not authorized'});
-        	}
+		pool.query(sql, [username, password], (err, pgRes) => {
+		if (err){
+					res.status(401).json({ error: 'Not authorized'});
+		} else if(pgRes.rowCount == 1){
+			res.game_diff = pgRes.rows[0]['gamedifficulity'];
+			res.cur_user = username;
+			res.psw = password;
+			next(); 
+		} else {
+					res.status(409).json({ error: 'Your username and password does not match'});
+		}
 		});
+
 	} catch(err) {
-               	res.status(403).json({ error: 'Not authorized'});
+               	res.status(401).json({ error: 'Not authorized'});
 	}
 });
 
 app.use('/api/authR', function (req, res,next) {
 	if (!req.headers.authorization) {
-		return res.status(403).json({ error: 'No credentials sent!' });
+		return res.status(401).json({ error: 'No credentials sent!' });
   	}
 	try {
 		var credentialsString = Buffer.from(req.headers.authorization.split(" ")[1], 'base64').toString();
 		var lst = credentialsString.split(":");
 		var [username,password,repeatpsw, gamedifficulity] = [lst[0], lst[1], lst[2], lst[3]]
-		if (username == "" || password == "" || repeatpsw == ""){
-			res.status(401).json({error: "All the registration fields can not be empty"});
-			console.log("All the registration fields can not be empty");
-			return;
-		}
 		if (password != repeatpsw){
 			console.log("Your password are not same");
-			res.status(402).json({error: "Your password are not same"});
+			res.status(400).json({error: "Your password are not same"});
+			return;
+		}
+		if (username == "" || password == "" || repeatpsw == ""){
+			res.status(400).json({error: "All the registration fields can not be empty"});
+			console.log("All the registration fields can not be empty");
 			return;
 		}
 		let sql = "INSERT INTO ftduser (username, password, gamedifficulity) VALUES ($1, sha512($2), $3)";
         	pool.query(sql, [username, password, gamedifficulity], (err, pgRes) => {
   			if (err){
 				console.log(err.message);
-                res.status(403).json({ error: 'The username is already been used'});
+                res.status(409).json({ error: 'The username is already been used'});
 			} else {
 				next();
         	}
 		});
 	} catch(err) {
-               	res.status(404).json({ error: 'Not authorized'});
+               	res.status(401).json({ error: 'Not authorized'});
 	}
 });
+
+
+app.use('/api/authU', function (req, res,next) {
+	if (!req.headers.authorization) {
+		return res.status(401).json({ error: 'No credentials sent!' });
+  	}
+	try {
+		var credentialsString = Buffer.from(req.headers.authorization.split(" ")[1], 'base64').toString();
+		var lst = credentialsString.split(":");
+		console.log(lst);
+		var [username,password,repeatpsw, gamedifficulity] = [lst[0], lst[1], lst[2], lst[3]]
+		if (password != repeatpsw){
+			console.log("Your password are not same");
+			res.status(400).json({error: "Your password are not same"});
+			return;
+		}
+		if (gamedifficulity == "" || password == "" || repeatpsw == ""){
+			res.status(400).json({error: "All the update fields can not be empty"});
+			return;
+		}
+		let sql = "UPDATE ftduser SET password = sha512($1), gamedifficulity= $2 WHERE username = $3;";
+        	pool.query(sql, [password, gamedifficulity, username], (err, pgRes) => {
+  			if (err){
+				console.log(err.message);
+                res.status(401).json({ error: 'error'});
+			} else {
+				console.log("no error");
+				next();
+        	}
+		});
+	} catch(err) {
+               	res.status(401).json({ error: 'Not authorized'});
+	}
+});
+
+
+app.use('/api/authD', function (req, res,next) {
+	if (!req.headers.authorization) {
+		return res.status(401).json({ error: 'No credentials sent!' });
+  	}
+	try {
+		var credentialsString = Buffer.from(req.headers.authorization.split(" ")[1], 'base64').toString();
+		var lst = credentialsString.split(":");
+		var username = lst[0];
+		console.log(username);
+		let sql = "DELETE FROM ftduser WHERE username=$1;";
+        	pool.query(sql, [username], (err, pgRes) => {
+  			if (err){
+				console.log(err.message);
+                res.status(401).json({ error: 'error'});
+			} else {
+				next();
+        	}
+		});
+	} catch(err) {
+               	res.status(401).json({ error: 'Not authorized'});
+	}
+});
+
+
+app.delete('/api/authD/delete', function (req, res) {
+	res.status(200); 
+	res.json({"message":"Delete user successfully"}); 
+});
+
+app.put('/api/authU/update', function (req, res) {
+	res.status(200); 
+	res.json({"message":"profile successfully update"}); 
+});
+
 
 app.post('/api/authR/register', function (req, res) {
 	res.status(200); 
 	res.json({"message":"register success"}); 
+});
+
+app.post('/api/auth/login', function (req, res) {
+	res.status(200); 
+	res.json({"message":"authentication success", "user": res.cur_user, "password": res.psw, "game_diff": res.game_diff}); 
 });
 
 // go to register page
@@ -113,10 +182,12 @@ app.get('/api/view/register', function (req, res) {
 	res.json({"message":"go to register page"}); 
 });
 
+
 app.get('/api/view/logout', function (req, res) {
 	res.status(200); 
 	res.json({"message":"go to login page"}); 
 });
+
 
 app.get('/api/view/instruction', function (req, res) {
 	res.status(200); 
@@ -124,34 +195,11 @@ app.get('/api/view/instruction', function (req, res) {
 });
 
 
-app.post('/api/view/profile', function (req, res) {
-	// console.log(req.data);
-    console.log(JSON.stringify(req.body));  
-	let sql = 'SELECT * FROM ftduser WHERE username=$1';
-	pool.query(sql, [req.body.user], (err, pgRes) => {
-	  if (err){
-				res.status(403).json({ error: 'Not authorized'});
-	} else if(pgRes.rowCount == 1){
-		console.log(pgRes.rows[0]);
-		console.log(pgRes.rows[0]["username"]);
-		console.log(pgRes.rows[0]["gamedifficulity"]);
-		res.status(200).json({ "good": 'nb'});
-	} else {
-			res.status(403).json({ error: 'Not authorized'});
-	}
-	});
+app.get('/api/view/profile', function (req, res) {
+	res.status(200); 
+	res.json({"message":"go to profile page"}); 
 });
 
-// All routes below /api/auth require credentials 
-app.post('/api/auth/login', function (req, res) {
-	res.status(200); 
-	res.json({"message":"authentication success", "user": res.cur_user, "password": res.psw}); 
-});
-
-app.post('/api/auth/test', function (req, res) {
-	res.status(200); 
-	res.json({"message":"got to /api/auth/test"}); 
-});
 
 app.listen(port, function () {
   	console.log('Example app listening on port '+port);
